@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cost Projections · Office Tools prototype</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+<style>
+/* ---------- Modus-named tokens (Modus 2.0 values) ---------- */
+:root{
+  --primary:#0063A3; --primary-dark:#004F83; --primary-pale:#DCEDF9; --primary-bg:#F2F7FB;
+  --text:#171C1E; --text-muted:#6A6E79; --text-faint:#90939F;
+  --bg:#FFFFFF; --level1:#F1F1F6; --level2:#E0E1E9; --level2b:#E9EAF0; --level3:#CBCDD6; --page:#FAFAFB;
+  --warning:#E49325; --warning-dark:#B35C00; --warning-pale:#FFF5E4;
+  --success:#1E8A44; --success-dark:#006638; --success-pale:#E0ECCF;
+  --error:#DA212C; --error-dark:#AB1F26; --error-pale:#FBD4D7;
+  --zebra:rgba(241,241,246,.4); --sel:#E7F0F8;
+  --radius:8px; --radius-lg:16px;
+  --shadow:0 10px 15px -3px rgba(0,0,0,.08),0 4px 6px -2px rgba(0,0,0,.05);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:'Open Sans',Arial,sans-serif;font-size:14px;color:var(--text);background:var(--bg);line-height:1.4}
+a{color:var(--primary)}
+button{font:inherit;color:inherit}
+h1,h2,h3{margin:0;font-weight:600}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.muted{color:var(--text-muted)}
+.hidden{display:none !important}
+:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
+
+/* ---------- top nav ---------- */
+.topnav{height:60px;display:flex;align-items:center;gap:16px;padding:6px 12px;border-bottom:1px solid var(--level2);background:#fff;position:fixed;top:0;left:0;right:0;z-index:20}
+.topnav .hamb{width:32px;height:32px;border:0;background:var(--level1);border-radius:8px;display:grid;place-items:center;cursor:pointer}
+.topnav .brand{display:flex;align-items:center;gap:8px;font-size:11px;line-height:1.1;color:var(--text-muted)}
+.topnav .brand b{display:block;color:var(--text);font-size:12px}
+.topnav .spacer{flex:1}
+.topnav .company{height:32px;padding:0 12px;border:0;background:var(--level1);border-radius:8px;font-weight:600;font-size:14px;cursor:pointer}
+.topnav .avatar{width:32px;height:32px;border-radius:50%;background:#171C1E;color:#fff;display:grid;place-items:center;font-weight:600;font-size:12px}
+.proto{position:relative}
+.proto>button{height:32px;border:1px dashed var(--level3);background:transparent;border-radius:6px;padding:0 10px;font-size:12px;color:var(--text-muted);cursor:pointer}
+.proto .pm{position:absolute;right:0;top:36px;background:#fff;border:1px solid var(--level2);border-radius:8px;box-shadow:var(--shadow);min-width:240px;padding:6px;z-index:60}
+.proto .pm button{display:block;width:100%;text-align:left;border:0;background:none;padding:8px 10px;border-radius:6px;cursor:pointer}
+.proto .pm button:hover{background:var(--level1)}
+
+/* ---------- page shell ---------- */
+.page{padding:16px 64px 24px;padding-top:76px;display:flex;flex-direction:column;gap:16px;min-height:calc(100% - 60px)}
+.pagehead{display:flex;align-items:center;gap:8px;min-height:40px;position:sticky;top:60px;z-index:15;background:#fff;margin:-16px -64px 0;padding:8px 64px;border-bottom:1px solid transparent}
+.pagehead h1{font-size:18px;line-height:28px}
+.pagehead .back{width:32px;height:32px;border:0;background:none;cursor:pointer;border-radius:6px;display:grid;place-items:center}
+.pagehead .back:hover{background:var(--level1)}
+.pagehead .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+/* ---------- buttons ---------- */
+.btn{height:32px;padding:0 12px;border-radius:8px;border:1px solid transparent;background:transparent;cursor:pointer;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.btn.sm{height:28px;padding:0 10px;font-size:13px}
+.btn.xs{height:24px;padding:0 8px;font-size:12px;border-radius:8px}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.primary:hover{background:var(--primary-dark)}
+.btn.primary:disabled{background:var(--primary-pale);color:#fff;cursor:not-allowed;opacity:.9}
+.btn.outline{border-color:var(--level3);background:#fff}
+.btn.outline:hover{background:var(--level1)}
+.btn.outline.primary-outline{border-color:var(--primary);color:var(--primary);background:#fff}
+.btn.ghost:hover{background:var(--level1)}
+.btn.chip{background:var(--level1)}
+.btn.icon{width:32px;padding:0;justify-content:center}
+.btn.icon.sm{width:28px}
+.btn.icon.xs{width:24px}
+.btn.danger{background:var(--error);color:#fff}
+.btn.link{color:var(--primary);padding:0;height:auto;font-weight:600}
+.btn svg{width:16px;height:16px;flex:none}
+.btn.xs svg{width:14px;height:14px}
+.toggle{display:inline-flex;border:1px solid var(--level3);border-radius:6px;overflow:hidden}
+.toggle button{width:32px;height:32px;border:0;background:#fff;cursor:pointer;display:grid;place-items:center;color:var(--text-muted)}
+.toggle button.on{background:var(--level1);color:var(--text)}
+
+/* ---------- cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.card{border:1px solid var(--level2b);border-radius:16px;background:#fff;padding:16px;display:flex;flex-direction:column;gap:8px;min-height:157px}
+.card .label{font-size:12px;line-height:24px;font-weight:600;letter-spacing:0;text-transform:uppercase;color:var(--text-muted);display:flex;justify-content:space-between;align-items:baseline}
+.card .label span{font-size:12px;text-transform:none;font-weight:400;color:var(--text)}
+.card .big{display:flex;align-items:baseline;gap:12px}
+.card .big b{font-size:40px;line-height:44px;font-weight:700}
+.card .big span{font-size:16px;color:var(--text)}
+.card .pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{height:20px;padding:0 8px;border-radius:999px;border:1px solid var(--text);background:var(--level2b);font-size:12px;line-height:16px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:var(--text)}
+.pill.on{box-shadow:0 0 0 2px var(--primary-pale)}
+.pill.draft{}
+.pill.submitted{border-color:var(--primary);color:var(--primary);background:var(--primary-pale)}
+.pill.approved{border-color:var(--success-dark);color:var(--success-dark);background:var(--success-pale)}
+.pill.yet{background:#fff}
+.card.clickable{cursor:pointer}
+.card.clickable:hover{border-color:var(--level3)}
+.card.selected{background:var(--primary-bg);border-color:var(--primary)}
+.toplist{display:flex;flex-direction:column;gap:8px}
+.toplist a{display:flex;align-items:center;gap:20px;color:var(--text);text-decoration:none;font-variant-numeric:tabular-nums;font-size:14px;line-height:24px}
+.toplist a:hover{text-decoration:underline}
+.toplist .code{width:36px;font-weight:600;color:var(--primary)}
+.toplist .desc{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.toplist .amt{font-weight:600;color:var(--error)}
+.toplist .pct{width:44px;text-align:right;font-weight:600;color:var(--error)}
+.warnline{color:var(--warning-dark);font-weight:600;font-size:12px;display:flex;align-items:center;gap:8px}
+
+/* ---------- period block (landing) ---------- */
+.block{border:1px solid var(--level2);border-radius:8px;padding:16px;background:rgba(241,241,246,.32)}
+.input{height:32px;border:1px solid var(--level3);border-radius:6px;background:#fff;padding:0 36px 0 12px;font:inherit;font-size:14px;width:343px;appearance:none;-webkit-appearance:none}
+.inputwrap{position:relative;width:343px}.inputwrap svg{position:absolute;right:10px;top:8px;width:16px;height:16px;color:var(--text-muted);pointer-events:none}
+.field label{display:block;font-size:12px;line-height:20px;color:var(--text-muted);margin-bottom:4px}
+.field .req{color:var(--error)}
+.select{height:32px;border:1px solid var(--level3);border-radius:6px;background:#fff;padding:0 12px;font:inherit;font-size:14px;min-width:168px}
+
+/* ---------- toolbar ---------- */
+.toolbar{height:40px;border:1px solid var(--level2);border-radius:8px;background:#fff;display:flex;align-items:center;gap:8px;padding:0 8px;position:sticky;top:108px;z-index:14}
+.toolbar .div{width:1px;height:24px;background:var(--level2);margin:0 4px}
+.toolbar .view{display:inline-flex;align-items:center;gap:8px;height:28px;border:1px solid var(--level3);border-radius:6px;padding:0 10px;background:#fff;cursor:pointer}
+.toolbar .view small{color:var(--text-muted)}
+.seltrig{height:32px;min-width:168px;border:1px solid var(--level3);border-radius:6px;background:#fff;padding:0 12px 0 12px;font:inherit;font-size:14px;display:inline-flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer}
+.seltrig svg{width:14px;height:14px;flex:none}
+
+/* ---------- container ---------- */
+.container{border:1px solid var(--level2);border-radius:8px;background:#fff;padding:0;display:flex;flex-direction:column;gap:0;overflow:visible}
+.gridhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 0 12px 0}
+.gridhead h2{font-size:14px;font-weight:600}
+.gridhead h2 small{font-weight:400;color:var(--text-muted);margin-left:8px;font-size:12px}
+.gridhead .right{display:flex;gap:8px;align-items:center}
+
+/* ---------- grid ---------- */
+.gridwrap{position:relative;border:0;border-radius:0;overflow:auto;max-height:var(--gh,520px);background:#fff}
+table.grid{border-collapse:separate;border-spacing:0;min-width:100%;table-layout:fixed;border-top:1px solid var(--level2);border-left:1px solid var(--level2)}
+table.grid th,table.grid td{border-right:1px solid var(--level2);border-bottom:1px solid var(--level2);padding:0 16px;height:40px;background:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;line-height:20px}
+table.grid.compact td{font-size:12px}
+.has-alert .toolbar{top:152px}
+.has-alert .alert{top:108px}
+table.grid thead th{position:sticky;top:0;z-index:3;font-weight:600;text-align:left;border-bottom-width:1px;height:40px;background:#fff;color:#252A2E;font-size:13px}
+table.grid thead tr.filter th{top:40px;height:28px;border-bottom-width:1px;padding:0 8px;z-index:3;background:#fff}
+table.grid thead tr.filter th svg{width:12px;height:12px;color:var(--text)}
+table.grid td.num,table.grid th.num{text-align:right}
+table.grid tbody tr.zebra td{background:var(--level1)}
+table.grid tbody tr.zebra td{background:#FAFAFC}
+table.grid tbody tr.sel td{background:#EDF4FB}
+table.grid tbody tr:hover td{filter:brightness(.985)}
+table.grid td.sticky,table.grid th.sticky{position:sticky;z-index:2}
+table.grid thead th.sticky{z-index:4}
+table.grid .stickyend{border-right:2px solid var(--level2)}
+table.grid td.action,table.grid th.action{position:sticky;right:0;z-index:2;border-left:1px solid var(--level2);border-right:0;text-align:center;padding:0 12px}
+table.grid thead th.action{z-index:4}
+table.grid tfoot td{position:sticky;bottom:0;z-index:3;font-weight:600;background:#fff;border-top:0}
+table.grid tfoot td.sticky{z-index:5}
+table.grid td.editable{cursor:text}
+table.grid td.editable:hover{box-shadow:inset 0 0 0 1px var(--primary)}
+table.grid td.editing{padding:0}
+table.grid td.editing input{width:100%;height:100%;border:0;outline:2px solid var(--primary);outline-offset:-2px;padding:0 16px;font:inherit;text-align:right;background:#fff}
+table.grid td.mod{font-weight:600}
+table.grid td.held{color:var(--text-faint)}
+table.grid td.pos{color:var(--error)}
+table.grid td.neg{color:var(--success)}
+table.grid td.drift{background:var(--warning-pale)!important;box-shadow:inset 0 0 0 1px var(--warning)}
+table.grid td.flash{animation:flash 2.4s ease-out}
+@keyframes flash{0%{background:var(--success-pale)}70%{background:var(--success-pale)}100%{background:inherit}}
+table.grid td.codecell .codewrap{display:flex;align-items:center;justify-content:space-between;gap:6px}
+table.grid td.codecell .codelink{color:var(--primary);font-weight:600}
+table.grid td.codecell.selcode .codelink{color:var(--text)}
+table.grid td.codecell .caret{font-size:12px;color:var(--text)}
+table.grid td .ico{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-left:6px;color:var(--warning-dark)}
+table.grid th .ico{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-left:8px;color:var(--text-muted)}
+.badge{display:inline-flex;align-items:center;height:24px;padding:2px 8px;border-radius:9999px;border:1px solid var(--text);font-size:12px;line-height:16px;font-weight:600;background:var(--level2b)}
+.badge.draft{border-color:var(--text)}
+.badge.submitted{border-color:var(--primary);color:var(--primary);background:var(--primary-pale)}
+.badge.approved,.badge.posted{border-color:var(--success-dark);color:var(--success-dark);background:var(--success-pale)}
+.badge.yet{border-color:var(--text);background:#fff}
+.bar{display:inline-flex;align-items:center;gap:8px}
+.bar i{display:inline-block;width:110px;height:8px;border-radius:4px;background:var(--level2);overflow:hidden}
+.bar i b{display:block;height:100%;background:var(--primary)}
+.notif.warn{color:var(--warning);font-weight:600}
+
+/* ---------- split ---------- */
+.split{display:flex;gap:0;align-items:stretch;position:relative}
+.split>.left{padding:16px}
+.split.vertical{flex-direction:column}
+.split .divhandle{width:9px;display:flex;align-items:center;justify-content:center;cursor:col-resize;flex:none;background:transparent;position:relative;z-index:6}
+.split .divhandle::before{content:'';position:absolute;left:4px;top:16px;bottom:16px;width:1px;background:var(--level2)}
+.split .divhandle .grip{width:3px;height:32px;border-radius:2px;background:var(--level3);opacity:0;transition:opacity .15s}
+.split .divhandle:hover .grip{opacity:1;background:var(--primary)}
+.split.vertical .divhandle{width:100%;height:9px;cursor:row-resize}
+.split.vertical .divhandle::before{left:0;right:0;top:4px;bottom:auto;width:auto;height:1px}
+.split.vertical .divhandle .grip{width:32px;height:3px;opacity:0}
+.split.vertical .divhandle:hover .grip{opacity:1}
+.split>.left{flex:1 1 50%;min-width:0}
+.split.vertical>.left{flex:1 1 auto;width:100%}
+.split>.pane{flex:1 1 50%;min-width:0;border-left:0;padding:16px;display:flex;flex-direction:column;gap:0;align-self:stretch;background:#fff;overflow:hidden}
+.split.vertical>.pane{border-left:0;border-top:0;padding:16px;width:100%;background:#fff}
+.pane .ph{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 0 12px 0}
+.pane .ph h3{font-size:14px;font-weight:600}
+.pane .ph h3{font-size:16px}
+.pane .ph .sub{font-size:13px;color:var(--text-muted)}
+.pane .note{font-size:12px;color:var(--text-muted)}
+
+/* ---------- header block (draft) ---------- */
+.hdrblock{border:1px solid var(--level2);border-radius:var(--radius);padding:20px 24px;background:#fff;display:flex;flex-direction:column;gap:20px}
+.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;align-items:start}
+.meta .k{font-size:13px;color:var(--text-muted);margin-bottom:6px}
+.meta .v{font-size:15px}
+.contract{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
+.ccard{border:1px solid var(--level2);border-radius:8px;padding:16px 20px;display:flex;flex-direction:column;gap:10px;background:#fff}
+.ccard.working{background:var(--primary-bg);border-color:var(--primary)}
+.ccard .t{font-weight:600}
+.ccard .t small{font-weight:400;color:var(--text-muted);margin-left:6px}
+.ccard .row{display:flex;justify-content:space-between;font-size:14px}
+.ccard .row span:first-child{color:var(--text-muted)}
+.ccard .row b{font-weight:600;font-variant-numeric:tabular-nums}
+.ccard .row .delta{font-size:12px;margin-left:8px;color:var(--error)}
+.ccard .row .delta.good{color:var(--success-dark)}
+.collapse{margin-left:auto;background:none;border:0;cursor:pointer;width:28px;height:28px;border-radius:6px;display:grid;place-items:center}
+.collapse:hover{background:var(--level1)}
+
+/* ---------- alert ---------- */
+.alert{display:flex;align-items:center;gap:12px;padding:6px 12px;min-height:36px;position:sticky;top:108px;z-index:13;border:1px solid var(--warning);border-left:4px solid var(--warning);border-radius:6px;background:var(--warning-pale)}
+.alert b{font-weight:600}
+.alert .right{margin-left:auto}
+
+/* ---------- footer ---------- */
+.footer{display:flex;align-items:center;justify-content:space-between;gap:12px;height:48px}
+.footer .status{color:var(--text-muted);font-size:13px}
+.footer .actions{display:flex;gap:8px}
+
+/* ---------- drawer / modal / menu ---------- */
+.scrim{position:fixed;inset:0;background:rgba(23,28,30,.4);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:76px;right:64px;bottom:24px;width:440px;background:#fff;z-index:30;border:1px solid var(--level2);border-radius:16px;transform:translateX(calc(100% + 80px));transition:transform .35s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;overflow:hidden}
+body.drawer-open main{margin-right:460px}
+main{transition:margin-right .35s cubic-bezier(.2,.8,.2,1)}
+.drawer.open{transform:none}
+.drawer .body{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.drawer .foot{padding:12px 20px 16px;display:flex;align-items:center;gap:8px}
+.drawer .foot .btn.link{margin-right:auto;font-size:12px}
+.drawer h3{font-size:16px}
+.ucard{display:flex;flex-direction:column;gap:10px}
+.ucard .ph{background:var(--level1);padding:6px 10px;border-radius:4px;font-weight:600;font-size:13px;display:flex;justify-content:space-between}
+.ucard .kv{display:grid;grid-template-columns:auto auto;gap:2px 24px;font-size:12px;padding:0 10px;justify-content:start}
+.ucard .kv span:nth-child(odd){color:var(--text-muted)}
+.ucard select{height:28px;border:1px solid var(--level3);border-radius:6px;padding:0 10px;font:inherit;font-size:12px;width:calc(100% - 20px);margin:0 10px}
+.ucard .hint{font-size:12px;color:var(--text-muted)}
+.modal{position:fixed;left:50%;top:160px;transform:translateX(-50%);width:560px;background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:50;display:none}
+.modal.open{display:block}
+.modal .mb{padding:24px 24px 8px;display:flex;flex-direction:column;gap:16px}
+.modal .mf{padding:16px 24px 20px;display:flex;justify-content:flex-end;gap:8px}
+.menu{position:absolute;background:#fff;border:1px solid var(--level2);border-radius:16px;box-shadow:0 2px 4px rgba(0,0,0,.1),0 4px 6px rgba(0,0,0,.1);min-width:210px;padding:0;z-index:45;overflow:hidden}
+.menu button{display:flex;gap:8px;align-items:center;width:100%;min-height:40px;text-align:left;border:0;background:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;line-height:24px;color:#000}
+.menu button.on{font-weight:600;background:var(--primary-pale)}
+.menu button:hover{background:var(--level1)}
+.menu button small{display:block;color:var(--text-muted);font-size:11px}
+.menu .div{height:1px;background:var(--level2);margin:4px 0}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#252A2E;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;z-index:70;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+.popover{position:absolute;width:320px;background:#fff;border:1px solid var(--level2);border-radius:8px;box-shadow:var(--shadow);z-index:45}
+.popover section{padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+.popover section+section{border-top:1px solid var(--level2)}
+.popover .t{font-weight:600;display:flex;align-items:center;gap:8px}
+.popover p{margin:0;font-size:13px;color:var(--text-muted)}
+.popover .btn{width:100%;justify-content:center}
+.filterchip{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 10px;border-radius:4px;border:1px solid var(--primary);background:var(--primary-pale);color:var(--primary-dark);font-weight:600;font-size:13px}
+.filterchip button{border:0;background:none;cursor:pointer;color:inherit;font-weight:700}
+/* ---------- calendar ---------- */
+.cal{position:absolute;z-index:46;width:344px;background:#fff;border:1px solid var(--level2b);border-radius:16px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,.06),0 4px 6px rgba(0,0,0,.08);font-family:'Open Sans',Arial,sans-serif}
+.cal .ch{background:var(--primary);padding:4px 24px;display:flex;align-items:center;justify-content:center;gap:4px;height:55px}
+.cal .ch button.nav{width:32px;height:32px;border:0;border-radius:8px;background:var(--primary);color:#fff;display:grid;place-items:center;cursor:pointer}
+.cal .ch button.nav:hover{background:var(--primary-dark)}
+.cal .ch select{height:32px;width:80px;border:0;border-radius:8px;background:#fff;padding:4px 12px;font:inherit;font-size:14px;font-weight:600;color:var(--text);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5z' fill='%23171c1e'/></svg>");background-repeat:no-repeat;background-position:right 10px center;background-size:16px}
+.cal .cb{padding:24px;display:flex;justify-content:center}
+.cal .grid7{display:grid;grid-template-columns:repeat(7,36px);gap:4px 0}
+.cal .wd{width:36px;height:36px;display:grid;place-items:center;font-weight:700;font-size:14px;color:var(--text)}
+.cal .d{width:36px;height:36px;border-radius:45px;border:0;background:#fff;font:inherit;font-size:14px;color:var(--text);cursor:pointer;display:grid;place-items:center}
+.cal .d:hover{background:var(--primary-pale)}
+.cal .d.other{color:#90939F}
+.cal .d.today{box-shadow:inset 0 0 0 2px var(--primary)}
+.cal .d.sel{background:var(--primary);color:#fff;font-weight:700}
+.cal .d.eom{text-decoration:underline dotted}
+.inputwrap button.calbtn{position:absolute;right:4px;top:4px;width:24px;height:24px;border:0;background:none;border-radius:6px;cursor:pointer;display:grid;place-items:center;color:var(--text-muted)}
+.inputwrap button.calbtn:hover{background:var(--level1)}
+.inputwrap button.calbtn svg{position:static;width:16px;height:16px}
+
+/* ---------- details page ---------- */
+.detail{border:1px solid var(--level2);border-radius:16px;background:#fff;display:flex;min-height:560px;overflow:hidden}
+.detail .nav{width:290px;border-right:1px solid var(--level2);padding:16px;display:flex;flex-direction:column;gap:4px}
+.detail .nav button{height:40px;border:0;border-radius:8px;background:none;text-align:left;padding:0 16px;font:inherit;font-size:14px;cursor:pointer;color:var(--text)}
+.detail .nav button:hover{background:var(--level1)}
+.detail .nav button.on{background:var(--primary-pale);color:var(--primary-dark);font-weight:600}
+.detail .sec{flex:1;padding:16px 24px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.detail .sec h3{font-size:14px;display:flex;align-items:center;gap:8px}
+.detail .sec .hint{font-size:11px;color:var(--text-muted)}
+.detail .checks{display:flex;gap:16px;font-size:12px}
+.detail .checks label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.detail .checks input{width:14px;height:14px;accent-color:var(--primary)}
+table.grid.matrix td,table.grid.matrix th{font-size:12px;height:36px;padding:0 12px}
+table.grid.matrix td:first-child,table.grid.matrix th:first-child{font-weight:600}
+.notes textarea{width:100%;min-height:96px;border:1px solid var(--level3);border-radius:8px;padding:10px 12px;font:inherit;font-size:13px;resize:vertical}
+.notes .hist{font-size:12px;color:var(--text-muted);display:flex;flex-direction:column;gap:4px}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="topnav">
+  <button class="hamb" aria-label="Menu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <div class="brand hidden"><svg width="28" height="28" viewBox="0 0 24 24" fill="#0063A3"><rect x="3" y="4" width="8" height="17"/><rect x="13" y="9" width="8" height="12"/><rect x="5" y="7" width="2" height="2" fill="#fff"/><rect x="8" y="7" width="2" height="2" fill="#fff"/><rect x="5" y="11" width="2" height="2" fill="#fff"/><rect x="8" y="11" width="2" height="2" fill="#fff"/><rect x="15" y="12" width="2" height="2" fill="#fff"/><rect x="18" y="12" width="2" height="2" fill="#fff"/></svg><div><b>Viewpoint</b>Construction<br>Services</div></div>
+  <div class="spacer"></div>
+  <div class="proto"><button id="protoBtn">Prototype ▾</button><div class="pm hidden" id="protoMenu"><button data-act="reset">Reset demo data</button><button data-act="drift">Toggle drift on Subcontracts</button><button data-act="assignall">Assign all unassigned</button></div></div>
+  <button class="company">Sharon Construction Services ▾</button>
+  <div class="avatar">TP</div>
+</header>
+<main id="app"></main>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true"></aside>
+<div class="modal" id="modal"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   DATA
+   ========================================================= */
+const STORE_KEY='cp-proto-v1';
+const fmt=(n,d=2)=>{ if(n===null||n===undefined||isNaN(n)) return '—'; const s=Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); return (n<0?'−':'')+s; };
+const fmtSigned=(n,d=2)=>{ if(n===null||isNaN(n)) return '—'; if(Math.abs(n)<0.005) return '0.00'; return (n>0?'+':'−')+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); };
+const pct=(a,b)=> b? (a/b*100):0;
+const money=(n)=>'$'+(Math.abs(n)>=1e6? (n/1e6).toFixed(2)+'M' : Math.abs(n)>=1e3? (n/1e3).toFixed(0)+'K' : n.toFixed(0));
+
+function seedData(){
+  // phases: {phase, pdesc, ct, cdesc, um, ci, cidesc, estUnits, estHours, estCost, actUnits, actHours, actCost, projUnits, projHours, projCost, prevUnits, prevHours, prevCost, origCost, inclCO, futureCO, code}
+  const P=(code,phase,pdesc,ct,cdesc,um,ci,estCost,actCost,projCost,prevCost,estHours=0,actHours=0,projHours=0,estUnits=0,actUnits=0,projUnits=0,inclCO=0,futureCO=0)=>({
+    id:phase+'-'+ct,code,phase,pdesc,ct,cdesc,um,ci,cidesc:ci?'Contract item '+ci:'',estCost,actCost,projCost,prevCost,prevHours:projHours,prevUnits:projUnits,estHours,actHours,projHours,estUnits,actUnits,projUnits,origCost:estCost-inclCO,inclCO,futureCO,plugged:false,modBy:'Thulsi Priya',modDate:'23-10-2026 21:10',mod:false});
+  const phases=[
+    // code 1 Labor (hours-driven)
+    P('1','031110','SOG Edge Forms','1','Labor','LF','1',4225.05,920.00,3450.00,4225.05,96,21,78,1200,260,975),
+    P('1','031120','Form & Strip','1','Labor','MOS','1',5532.50,1207.00,3017.50,5532.50,126,28,69,3,0.7,1.7),
+    P('1','031500','SOG Screeds & Misc','1','Labor','SF','1',76235.40,9240.00,80000.00,76235.40,1734,210,1820,8400,1020,8800),
+    P('1','033110','Pour Footings','1','Labor','SF','1',7703.66,1383.43,7703.66,7703.66,175,31,175,650,117,650),
+    P('1','033120','Pour Walls','1','Labor','CY','2',14056.65,2798.00,16500.00,14056.65,320,64,375,210,42,245),
+    P('1','033130','Pour SOG','1','Labor','CY','2',6502.90,795.57,8067.59,6138.30,148,18,183,96,12,118),
+    // code 2 Material
+    P('2','031140','Wall Form Material','2','Material','SF','1',42097.00,5120.00,41500.00,42097.00),
+    P('2','032110','Concrete Re-bar','2','Material','PC','1',30000.00,4200.00,30000.00,30000.00),
+    P('2','061230','1/2 inch Plywood','2','Material','SF','2',10999.40,863.78,10918.96,10321.96),
+    // code 3 Subcontracts
+    P('3','042100','Brick Masonry','3','Subcontract','PC','3',491080.00,491080.00,491080.00,491080.00,0,0,0,0,0,0,25000),
+    P('3','042200','CMU Masonry','3','Subcontract','PC','3',137300.00,137300.00,137300.00,137300.00),
+    P('3','051000','Structural Steel','3','Subcontract','PC','4',1166135.00,1116580.00,1171135.00,1166135.00,0,0,0,0,0,0,0,56000),
+    P('3','071210','Roofing Built-up','3','Subcontract','PC','4',32379.75,32379.75,32379.75,32379.75),
+    P('3','033510','Finish SOG','3','Subcontract','PC','2',93787.50,93787.50,93787.50,93787.50),
+    // code 4 Equipment
+    P('4','015140','Chemical Toilets','4','Equipment','MOS','1',1087.17,0,1087.17,1087.17),
+    // code 8 Overhead
+    P('8','006100','Performance Bond','6','Other','MOS','1',6500.00,0,6500.00,6500.00),
+    P('8','006200','Insurance – Other','6','Other','MOS','1',2590.04,0,2590.04,2590.04),
+    // unassigned
+    P(null,'013100','Project','1','Labor','MOS','1',229999.90,55936.00,229999.90,null,5200,1265,5200),
+    P(null,'015110','Construction Facilities','6','Other','MOS','1',31500.00,2863.64,31500.00,null),
+  ];
+  const codes=[
+    {code:'1',desc:'Labor',um:'HRS',notes:1,plugged:false,buyout:false},
+    {code:'2',desc:'Material',um:'',notes:0,plugged:false,buyout:false},
+    {code:'3',desc:'Subcontracts',um:'',notes:1,plugged:false,buyout:true},
+    {code:'4',desc:'Equipment',um:'',notes:0,plugged:false,buyout:false},
+    {code:'8',desc:'Overhead',um:'',notes:0,plugged:true,buyout:false},
+  ];
+  const jobs=[
+    {job:'101',desc:'Front Elevation for Tech Park',status:'Draft',pct:15,modified:'26-10-2026 | 13:10',by:'Thulsi Priya',budget:1586235.77,projected:null,unassigned:2,live:true},
+    {job:'102',desc:'Car Park Extension in Shopping Mall',status:'Draft',pct:70,modified:'25-10-2026 | 08:17',by:'Kellie Medeiros',budget:515000,projected:500000,unassigned:1},
+    {job:'103',desc:'Fencing for community',status:'Submitted',pct:55,modified:'25-10-2026 | 09:42',by:'Angeline Paule Risk',budget:1350000,projected:1900000},
+    {job:'104',desc:'Renovation of study room',status:'Approved',pct:55,modified:'23-10-2026 | 21:10',by:'Thulsi Priya',budget:7350000,projected:7970000},
+    {job:'105',desc:'First Floor Lift Area',status:'Approved',pct:100,modified:'23-10-2026 | 22:37',by:'Adam Flory',budget:1000,projected:1000},
+    {job:'106',desc:'Renovation of study room',status:'Posted',pct:55,modified:'23-10-2026 | 21:10',by:'Thulsi Priya',budget:7350000,projected:7350000},
+    {job:'107',desc:'First Floor Lift Area',status:'Yet to start',pct:0,modified:'',by:'',budget:1000,projected:null},
+  ];
+  phases.forEach(p=>{ if(p.code && Math.abs(p.projCost-(p.estCost+p.inclCO))>0.005) p.mod=true; });
+  return {phases,codes,jobs,revenue:2950000.00,lastUpdate:'07-10-2024 | 11:22',period:'31-10-2026',layout:'horizontal',selectedCode:null,view:'Thulsi’s project view',changes:0,drift:false};
+}
+let D=load();
+function load(){ try{ const s=localStorage.getItem(STORE_KEY); if(s) return JSON.parse(s);}catch(e){} return seedData(); }
+function save(){ try{ localStorage.setItem(STORE_KEY,JSON.stringify(D)); }catch(e){} }
+
+/* =========================================================
+   CALCULATION ENGINE (ports to TypeScript as-is)
+   ========================================================= */
+const MIN_PCT=20; // minimum % complete before projections apply (company parameter)
+function phaseCalc(p){
+  const estInc=p.estCost+p.inclCO;
+  const pctCost=pct(p.actCost,p.projCost||estInc);
+  const pctHours=p.projHours?pct(p.actHours,p.projHours):0;
+  const pctUnits=p.projUnits?pct(p.actUnits,p.projUnits):0;
+  return {
+    estInc, pctCost, pctHours, pctUnits,
+    ouCost:p.projCost-estInc, ouHours:p.projHours-p.estHours, ouUnits:p.projUnits-p.estUnits,
+    remCost:p.projCost-p.actCost, remHours:p.projHours-p.actHours, remUnits:p.projUnits-p.actUnits,
+    held: pct(p.actCost,estInc)<MIN_PCT && !p.mod,
+    drift: p.actCost>p.projCost+0.005,
+    netChange:p.projCost-(p.prevCost??estInc),
+    forecastCost:Math.max(p.projCost,p.actCost), forecastHours:Math.max(p.projHours,p.actHours)
+  };
+}
+function codeCalc(code){
+  const ps=D.phases.filter(p=>p.code===code);
+  const s=k=>ps.reduce((a,p)=>a+(p[k]||0),0);
+  const estInc=s('estCost')+s('inclCO'); const projCost=s('projCost'); const actCost=s('actCost');
+  const prevCost=ps.reduce((a,p)=>a+(p.prevCost??p.estCost),0);
+  const estHours=s('estHours'), actHours=s('actHours'), projHours=s('projHours'), prevHours=s('prevHours');
+  const anyMod=ps.some(p=>p.mod);
+  return { phases:ps, estInc, actCost, projCost, prevCost, estHours, actHours, projHours, prevHours,
+    pctCost:pct(actCost,projCost||estInc), pctHours:projHours?pct(actHours,projHours):0,
+    ouCost:projCost-estInc, ouHours:projHours-estHours, remCost:projCost-actCost, remHours:projHours-actHours,
+    forecastCost:Math.max(projCost,actCost), forecastHours:Math.max(projHours,actHours),
+    held: pct(actCost,estInc)<MIN_PCT && !anyMod, drift: actCost>projCost+0.005, mod:anyMod,
+    inclCO:s('inclCO'), futureCO:s('futureCO'), modBy: anyMod?'Thulsi Priya':'Kellie Medeiros', modDate: anyMod?nowStamp():'23-10-2026 21:10' };
+}
+function nowStamp(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${p(d.getDate())}-${p(d.getMonth()+1)}-${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+// Units drive hours, hours drive cost.
+function setPhaseProjCost(p,v){ p.projCost=Math.max(0,v); p.mod=true; p.modBy='Thulsi Priya'; p.modDate=nowStamp(); }
+function setPhaseProjHours(p,v){ v=Math.max(0,v); const rate=p.estHours? p.estCost/p.estHours : 0; p.projHours=v; if(rate) p.projCost=round2(v*rate); p.mod=true; p.modDate=nowStamp(); }
+function setPhaseProjUnits(p,v){ v=Math.max(0,v); const hpu=p.estUnits? p.estHours/p.estUnits : 0; const cpu=p.estUnits? p.estCost/p.estUnits : 0; p.projUnits=v; if(hpu){ p.projHours=round2(v*hpu); } if(cpu) p.projCost=round2(v*cpu); p.mod=true; p.modDate=nowStamp(); }
+// Code-level edit distributes proportionally to phases (by current projected cost; by estimate if all zero)
+function setCodeProjCost(code,v){ const ps=D.phases.filter(p=>p.code===code); const total=ps.reduce((a,p)=>a+p.projCost,0)||ps.reduce((a,p)=>a+p.estCost,0); let acc=0; ps.forEach((p,i)=>{ const w=(total? (p.projCost||p.estCost)/total : 1/ps.length); const share = i===ps.length-1 ? v-acc : round2(v*w); acc+=share; setPhaseProjCost(p,share); }); }
+function setCodeProjHours(code,v){ const ps=D.phases.filter(p=>p.code===code&&p.estHours>0); const total=ps.reduce((a,p)=>a+p.projHours,0)||ps.reduce((a,p)=>a+p.estHours,0); let acc=0; ps.forEach((p,i)=>{ const w=total?(p.projHours||p.estHours)/total:1/ps.length; const share=i===ps.length-1? v-acc : round2(v*w); acc+=share; setPhaseProjHours(p,share); }); }
+const round2=n=>Math.round(n*100)/100;
+function contract(){ const codes=D.codes.map(c=>codeCalc(c.code)); const orig=codes.reduce((a,c)=>a+(c.estInc-c.inclCO),0); const cur=codes.reduce((a,c)=>a+c.estInc,0); const proj=codes.reduce((a,c)=>a+c.prevCost,0); const work=codes.reduce((a,c)=>a+c.projCost,0); const rev=D.revenue; const m=(cost)=>({rev,cost,margin:rev-cost,pct:pct(rev-cost,rev)}); return {original:m(orig),current:m(cur),projected:m(proj),working:m(work)}; }
+function unassigned(){ return D.phases.filter(p=>!p.code); }
+
+/* =========================================================
+   COLUMN DEFINITIONS
+   ========================================================= */
+// Projection code grid: all 23 columns from the spec (+ actions). Default-visible flagged.
+const CODE_COLS=[
+  {k:'code',label:'Projection Code',w:140,sticky:true,vis:true,get:(c,x)=>c.code},
+  {k:'desc',label:'Description',w:220,sticky:true,vis:true,get:(c,x)=>c.desc},
+  {k:'um',label:'UM',w:72,vis:true,get:(c,x)=>c.um},
+  {k:'estHours',label:'Current Est + Incl. Hours',w:190,num:true,get:(c,x)=>fmt(x.estHours)},
+  {k:'estInc',label:'Current Est + Incl. Cost',w:190,num:true,vis:true,get:(c,x)=>fmt(x.estInc)},
+  {k:'actHours',label:'Actual + Committed Hours',w:190,num:true,get:(c,x)=>fmt(x.actHours)},
+  {k:'actCost',label:'Actual + Committed Cost',w:190,num:true,vis:true,get:(c,x)=>fmt(x.actCost)},
+  {k:'pctHours',label:'% Complete Hours',w:150,num:true,get:(c,x)=>fmt(x.pctHours)+'%'},
+  {k:'pctCost',label:'% Complete Cost',w:140,num:true,vis:true,heldable:true,get:(c,x)=>fmt(x.pctCost)+'%'},
+  {k:'ouHours',label:'Over / Under Hours',w:160,num:true,signed:true,get:(c,x)=>fmtSigned(x.ouHours)},
+  {k:'ouCost',label:'Over / Under Cost',w:160,num:true,signed:true,heldable:true,get:(c,x)=>fmtSigned(x.ouCost)},
+  {k:'remHours',label:'Remaining Hours',w:150,num:true,get:(c,x)=>fmt(x.remHours)},
+  {k:'remCost',label:'Remaining Cost',w:160,num:true,vis:true,get:(c,x)=>fmt(x.remCost)},
+  {k:'projHours',label:'Projected Final Hours',w:180,num:true,edit:'hours',get:(c,x)=>fmt(x.projHours)},
+  {k:'projCost',label:'Projected Final Cost',w:190,num:true,vis:true,edit:'cost',heldable:true,get:(c,x)=>fmt(x.projCost)},
+  {k:'variance',label:'Projected Final Cost Variance',w:200,num:true,vis:true,signed:true,heldable:true,get:(c,x)=>fmtSigned(x.ouCost)},
+  {k:'prevHours',label:'Previously Projected Hours',w:200,num:true,get:(c,x)=>fmt(x.prevHours)},
+  {k:'prevCost',label:'Previously Projected Cost',w:200,num:true,vis:true,get:(c,x)=>fmt(x.prevCost)},
+  {k:'fcHours',label:'Forecast Final Hours',w:170,num:true,get:(c,x)=>fmt(x.forecastHours)},
+  {k:'fcCost',label:'Forecast Final Cost',w:170,num:true,get:(c,x)=>fmt(x.forecastCost)},
+  {k:'plugged',label:'Plugged',w:100,get:(c,x)=>c.plugged?'Yes':''},
+  {k:'buyout',label:'Buy-out',w:100,get:(c,x)=>c.buyout?'Yes':''},
+  {k:'notes',label:'Notes',w:80,vis:true,get:(c,x)=>c.notes?String(c.notes):''},
+  {k:'modBy',label:'Modified by',w:160,get:(c,x)=>x.modBy},
+  {k:'modDate',label:'Modified date',w:170,get:(c,x)=>x.modDate},
+];
+const PHASE_COLS=[
+  {k:'phase',label:'Phase',w:84,sticky:true,vis:true,get:(p,x)=>p.phase},
+  {k:'pdesc',label:'Phase Description',w:160,sticky:true,vis:true,get:(p,x)=>p.pdesc},
+  {k:'ct',label:'Cost Type',w:80,sticky:true,vis:true,get:(p,x)=>p.ct},
+  {k:'cdesc',label:'Cost Type Description',w:130,sticky:true,vis:true,get:(p,x)=>p.cdesc},
+  {k:'um',label:'UM',w:64,vis:true,get:(p,x)=>p.um},
+  {k:'ci',label:'Contract Item',w:120,get:(p,x)=>p.ci},
+  {k:'cidesc',label:'Contract Item Description',w:200,get:(p,x)=>p.cidesc},
+  {k:'estHours',label:'Current Est + Incl. Hours',w:190,num:true,get:(p,x)=>fmt(p.estHours)},
+  {k:'estInc',label:'Current Est + Incl. Cost',w:190,num:true,vis:true,get:(p,x)=>fmt(x.estInc)},
+  {k:'actUnits',label:'Actual + Committed Units',w:190,num:true,get:(p,x)=>fmt(p.actUnits,3)},
+  {k:'actHours',label:'Actual + Committed Hours',w:190,num:true,get:(p,x)=>fmt(p.actHours)},
+  {k:'actCost',label:'Actual + Committed Cost',w:190,num:true,vis:true,get:(p,x)=>fmt(p.actCost)},
+  {k:'pctUnits',label:'% Complete Units',w:150,num:true,get:(p,x)=>fmt(x.pctUnits)+'%'},
+  {k:'pctHours',label:'% Complete Hours',w:150,num:true,get:(p,x)=>fmt(x.pctHours)+'%'},
+  {k:'pctCost',label:'% Complete Cost',w:140,num:true,vis:true,heldable:true,get:(p,x)=>fmt(x.pctCost)+'%'},
+  {k:'ouUnits',label:'Over / Under Units',w:160,num:true,signed:true,get:(p,x)=>fmtSigned(x.ouUnits,3)},
+  {k:'ouHours',label:'Over / Under Hours',w:160,num:true,signed:true,get:(p,x)=>fmtSigned(x.ouHours)},
+  {k:'ouCost',label:'Over / Under Cost',w:160,num:true,vis:true,signed:true,heldable:true,get:(p,x)=>fmtSigned(x.ouCost)},
+  {k:'remUnits',label:'Remaining Units',w:150,num:true,get:(p,x)=>fmt(x.remUnits,3)},
+  {k:'remCost',label:'Remaining Cost',w:160,num:true,vis:true,get:(p,x)=>fmt(x.remCost)},
+  {k:'projUnits',label:'Projected Final Units',w:180,num:true,edit:'units',get:(p,x)=>fmt(p.projUnits,3)},
+  {k:'projHours',label:'Projected Final Hours',w:180,num:true,edit:'hours',get:(p,x)=>fmt(p.projHours)},
+  {k:'projCost',label:'Projected Final Cost',w:190,num:true,vis:true,edit:'cost',heldable:true,get:(p,x)=>fmt(p.projCost)},
+  {k:'prevUnits',label:'Previously Projected Units',w:200,num:true,get:(p,x)=>fmt(p.prevUnits,3)},
+  {k:'prevHours',label:'Previously Projected Hours',w:200,num:true,get:(p,x)=>fmt(p.prevHours)},
+  {k:'prevCost',label:'Previously Projected Cost',w:200,num:true,vis:true,get:(p,x)=>fmt(p.prevCost??x.estInc)},
+  {k:'origCost',label:'Original Estimate Cost',w:180,num:true,get:(p,x)=>fmt(p.origCost)},
+  {k:'curCost',label:'Current Estimated Cost',w:180,num:true,get:(p,x)=>fmt(p.estCost)},
+  {k:'inclCO',label:'Included COs',w:140,num:true,get:(p,x)=>fmt(p.inclCO)},
+  {k:'dispCO',label:'Displayed COs',w:140,num:true,get:(p,x)=>fmt(p.inclCO+p.futureCO)},
+  {k:'futureCO',label:'Future CO Cost',w:150,num:true,get:(p,x)=>fmt(p.futureCO)},
+  {k:'netChange',label:'Net Change',w:140,num:true,signed:true,get:(p,x)=>fmtSigned(x.netChange)},
+  {k:'plugged',label:'Plugged',w:100,get:(p,x)=>p.plugged?'Yes':''},
+  {k:'modBy',label:'Modified by',w:160,get:(p,x)=>p.modBy},
+  {k:'modDate',label:'Modified date',w:170,get:(p,x)=>p.modDate},
+];
+// "show all" by default so scrolling is real; sticky columns keep orientation
+const CODE_FIRST=['code','desc','um','estInc','actCost','pctCost','projCost','variance','remCost','prevCost','notes'];
+const PHASE_FIRST=['phase','pdesc','ct','cdesc','um','estInc','actCost','pctCost','projCost','ouCost','remCost','prevCost'];
+function reorder(cols,first){ const byK=Object.fromEntries(cols.map(c=>[c.k,c])); const rest=cols.filter(c=>!first.includes(c.k)); return [...first.map(k=>byK[k]),...rest]; }
+const CODE_COLS_O=reorder(CODE_COLS,CODE_FIRST); CODE_COLS.length=0; CODE_COLS.push(...CODE_COLS_O);
+const PHASE_COLS_O=reorder(PHASE_COLS,PHASE_FIRST); PHASE_COLS.length=0; PHASE_COLS.push(...PHASE_COLS_O);
+CODE_COLS.forEach(c=>c.vis=true); PHASE_COLS.forEach(c=>c.vis=true);
+
+/* =========================================================
+   ICONS
+   ========================================================= */
+const I={
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>',
+  pencil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3Z"/><path d="m13.5 6.5 3 3"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>',
+  back:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>',
+  chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+  tune:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>',
+  table:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 10h18M9 4v16M15 4v16"/></svg>',
+  filter:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18l-7 8v6l-4-2v-4Z"/></svg>',
+  side:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M14 5v14"/></svg>',
+  stack:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 13h18"/></svg>',
+  close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg>'
+};
+
+/* =========================================================
+   ROUTER
+   ========================================================= */
+const app=document.getElementById('app');
+window.addEventListener('hashchange',render);
+function go(h){ location.hash=h; }
+function render(){ closeMenus(); closeDrawer(); const h=location.hash||'#landing'; if(h.startsWith('#detail')) renderDetail(h.split('/')[2]||'1'); else if(h.startsWith('#draft')) renderDraft(); else renderLanding(); }
+
+/* =========================================================
+   LANDING
+   ========================================================= */
+let landingFilter={status:null,over:false};
+function jobNumbers(j){ if(j.live){ const codes=D.codes.map(c=>codeCalc(c.code)); const proj=codes.reduce((a,c)=>a+c.projCost,0); const bud=codes.reduce((a,c)=>a+c.estInc,0); return {projected:proj,budget:bud}; } return {projected:j.projected,budget:j.budget}; }
+function renderLanding(){
+  const jobs=D.jobs.map(j=>({...j,...jobNumbers(j)}));
+  const over=jobs.filter(j=>j.projected!==null&&j.projected>j.budget*1.005&&j.pct>=MIN_PCT).map(j=>({...j,overAmt:j.projected-j.budget,overPct:pct(j.projected-j.budget,j.budget)})).sort((a,b)=>b.overAmt-a.overAmt);
+  const counts={Draft:jobs.filter(j=>j.status==='Draft').length,Submitted:jobs.filter(j=>j.status==='Submitted').length,Approved:jobs.filter(j=>['Approved','Posted'].includes(j.status)).length,Yet:jobs.filter(j=>j.status==='Yet to start').length};
+  const attention=jobs.filter(j=>j.unassigned).length;
+  let shown=jobs; if(landingFilter.status==='Approved') shown=shown.filter(j=>['Approved','Posted'].includes(j.status)); else if(landingFilter.status) shown=shown.filter(j=>j.status===landingFilter.status); if(landingFilter.over) shown=over;
+  const statusBadge=s=>`<span class="badge ${s==='Yet to start'?'yet':s.toLowerCase()}">${s}</span>`;
+  const notif=j=>{ if(j.unassigned) return `<span class="notif warn">${j.unassigned} new unassigned phase/cost type</span>`; if(j.status==='Submitted') return 'Awaiting approval'; if(j.status==='Approved') return 'Ready for Posting'; if(j.status==='Posted') return 'Posted to ledger'; if(j.status==='Yet to start') return 'Last Projection: $1000.00 (September)'; return ''; };
+  const action=j=>{ if(j.status==='Draft') return `<button class="btn xs outline primary-outline" onclick="openDraft('${j.job}')">Open Draft</button>`; if(j.status==='Yet to start') return `<button class="btn xs outline primary-outline" onclick="toast('Start Draft: initialize step is out of Phase 1 scope')">Start Draft</button>`; return `<button class="btn xs outline primary-outline" onclick="toast('Read-only view: next build')">View</button>`; };
+  const topRows=over.slice(0,3).map(j=>`<a href="#" onclick="event.preventDefault();openDraft('${j.job}')"><span class="code">${j.job}</span><span class="desc">${j.desc}</span><span class="amt">+$${j.overAmt.toLocaleString('en-US',{maximumFractionDigits:0})}</span><span class="pct">+${j.overPct.toFixed(0)}%</span></a>`).join('');
+  const overTotal=over.reduce((a,j)=>a+j.overAmt,0);
+  app.innerHTML=`
+  <div class="page">
+    <div class="pagehead"><h1>Cost Projections</h1></div>
+    <div class="block"><div class="field"><label>Projection Period <span class="req">*</span></label><div class="inputwrap" id="periodWrap"><input class="input" id="periodInput" value="${D.period}" readonly aria-label="Projection period"><button class="calbtn" title="Pick projection period" onclick="event.stopPropagation();toggleCal(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button></div></div></div>
+    <div class="cards">
+      <div class="card"><div class="label">My Jobs</div><div class="big"><b>${jobs.length}</b><span>jobs this period</span></div>
+        <div class="pills">
+          <button class="pill ${landingFilter.status==='Draft'?'on':''}" onclick="setLF('Draft')">${counts.Draft} Draft</button>
+          <button class="pill submitted ${landingFilter.status==='Submitted'?'on':''}" onclick="setLF('Submitted')">${counts.Submitted} Submitted</button>
+          <button class="pill approved ${landingFilter.status==='Approved'?'on':''}" onclick="setLF('Approved')">${counts.Approved} Approved / Posted</button>
+          <button class="pill yet ${landingFilter.status==='Yet to start'?'on':''}" onclick="setLF('Yet to start')">${counts.Yet} Yet to start</button>
+        </div></div>
+      <div class="card clickable" onclick="setLF('Draft')"><div class="label">Needs Attention</div><div class="big"><b>${attention}</b><span>drafts need fixes</span></div><div class="warnline"><span style="width:16px;height:16px;display:inline-block">${I.warn}</span>${attention} jobs has unassigned phase/cost types</div></div>
+      <div class="card clickable ${landingFilter.over?'selected':''}" onclick="setLF(null,true)"><div class="label">Top overruns<span>${over.length} of ${jobs.length} jobs over budget</span></div>
+        ${over.length? `<div class="toplist">${topRows}</div>` : `<div class="big"><span style="width:20px;height:20px;color:var(--success-dark);display:inline-block">${I.check}</span><b style="font-size:20px">All ${jobs.length} jobs within budget</b></div>`}
+      </div>
+    </div>
+    <div class="gridhead" style="position:sticky;top:108px;z-index:14;background:#fff;padding:12px 0;margin:0"><h2 style="font-size:14px;display:flex;align-items:center;gap:4px">${shown.length} jobs <button class="btn xs icon ghost" title="Refresh" onclick="renderLanding();toast('Refreshed')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg></button> ${landingFilter.status||landingFilter.over? `<span class="filterchip">${landingFilter.over?'Over budget':landingFilter.status} · ${shown.length} <button onclick="setLF(null)">✕</button></span>`:''}</h2><div class="right"><button class="seltrig" aria-haspopup="menu" onclick="openStatusMenu(this)"><span>${landingFilter.status||'All Status'}</span>${I.chev}</button></div></div>
+    <div class="gridwrap" style="--gh:600px">
+      <table class="grid compact" style="width:100%">
+        <thead><tr>
+          <th class="sticky" style="left:0;width:120px">Job</th><th class="sticky stickyend" style="left:120px;width:301px">Description</th><th style="width:160px">Status</th><th style="width:301px">Notification</th><th class="num" style="width:200px">Projected Final ($)</th><th style="width:190px">Percentage Complete</th><th style="width:200px">Last modified</th><th style="width:200px">Last modified by</th><th class="action" style="width:120px">Actions</th></tr>
+          <tr class="filter"><th class="sticky" style="left:0;z-index:4">${I.search}</th><th class="sticky stickyend" style="left:120px;z-index:4">${I.search}</th><th></th><th>${I.search}</th><th class="num">${I.search}</th><th></th><th>${I.search}</th><th>${I.search}</th><th class="action"></th></tr></thead>
+        <tbody>${shown.map((j,i)=>`<tr class="${i%2?'zebra':''}"><td class="sticky" style="left:0">${j.job}</td><td class="sticky stickyend" style="left:120px">${j.desc}</td><td>${statusBadge(j.status)}</td><td>${notif(j)}</td><td class="num">${j.projected===null?'--':'$ '+fmt(j.projected)}</td><td><span class="bar"><i><b style="width:${j.pct}%"></b></i>${j.pct}%</span></td><td class="muted">${j.modified||'--'}</td><td class="muted">${j.by||'--'}</td><td class="action">${action(j)}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+function setLF(status,over=false){ if(over){ landingFilter={status:null,over:!landingFilter.over}; } else landingFilter={status:(landingFilter.status===status?null:status),over:false}; renderLanding(); }
+function openDraft(job){ if(job!=='101'){ toast(`Job ${job} is static in this prototype; job 101 is the live draft`); return; } D.selectedCode=null; save(); go('#draft/101'); }
+
+/* =========================================================
+   DRAFT PAGE
+   ========================================================= */
+let collapsed=false;
+function renderDraft(){
+  const con=contract(); const ua=unassigned();
+  const codes=D.codes.map(c=>({...c,x:codeCalc(c.code)}));
+  const totals=codes.reduce((a,c)=>{ for(const k of ['estInc','actCost','projCost','prevCost','remCost','ouCost','estHours','actHours','projHours','prevHours','remHours','ouHours','forecastCost','forecastHours']) a[k]=(a[k]||0)+c.x[k]; return a; },{});
+  totals.pctCost=pct(totals.actCost,totals.projCost); totals.pctHours=totals.projHours?pct(totals.actHours,totals.projHours):0;
+  const row=(label,val,delta,good)=>`<div class="row"><span>${label}</span><b>${val}${delta!==undefined?`<span class="delta ${good?'good':''}">${delta}</span>`:''}</b></div>`;
+  const cc=(title,sub,m,cls,base)=>`<div class="ccard ${cls||''}"><div class="t">${title}<small>· ${sub}</small></div>${row('Revenue',fmt(m.rev))}${row('Costs',fmt(m.cost),base?fmtSigned(m.cost-base.cost):undefined,base&&m.cost<base.cost)}${row('Margin in $',fmt(m.margin),base?fmtSigned(m.margin-base.margin):undefined,base&&m.margin>base.margin)}${row('Margin in %',fmt(m.pct)+'%',base?fmtSigned(m.pct-base.pct)+' pts':undefined,base&&m.pct>base.pct)}</div>`;
+  app.innerHTML=`
+  <div class="page">
+    <div class="pagehead"><button class="back" onclick="go('#landing')" aria-label="Back">${I.back}</button><h1>Cost Projection Job 101</h1>
+      <div class="right"><button class="btn outline" onclick="toast('Reports: PM Project Status Drilldown · Review Change Orders · Projection Trend · Run Miracle WIP')">Report <span style="width:14px;height:14px;display:inline-block">${I.chev}</span></button>
+      ${D.selectedCode?`<div class="toggle"><button class="${D.layout==='horizontal'?'on':''}" title="Side by side" onclick="setLayout('horizontal')">${I.side}</button><button class="${D.layout==='vertical'?'on':''}" title="Top and bottom" onclick="setLayout('vertical')">${I.stack}</button></div>`:''}</div></div>
+    <div class="hdrblock">
+      <div class="meta"><div><div class="k">Projection Period</div><div class="v">${D.period}</div></div><div><div class="k">Job</div><div class="v">101 - Front Elevation for Tech Park</div></div><div><div class="k">Status</div><div class="v"><span class="badge draft">Draft</span></div></div><div style="display:flex"><div><div class="k">Last Projection Update</div><div class="v">${D.lastUpdate}</div></div><button class="collapse" onclick="collapsed=!collapsed;renderDraft()" aria-label="Collapse">${collapsed?I.chev:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>'}</button></div></div>
+      ${collapsed?'':`<div class="contract">${cc('ORIGINAL','at contract signing',con.original)}${cc('CURRENT','including approved change orders',con.current)}${cc('PROJECTED','last posted projection',con.projected)}${cc('WORKING','this draft updates as you edit',con.working,'working',con.projected)}</div>`}
+      ${ua.length?`<div class="alert"><span style="width:18px;height:18px;display:inline-block;color:var(--warning-dark)">${I.warn}</span><b style="font-size:13px">${ua.length} phase/cost types have no projection code</b><div class="right"><button class="btn xs outline" style="border-color:var(--warning);color:var(--warning-dark);height:22px;font-size:11px" onclick="openAssign()">Assign now</button></div></div>`:''}
+    </div>
+    <div class="toolbar">
+      <button class="btn sm chip" onclick="toast('Field properties: next build')"><span style="width:16px;height:16px;display:inline-block">${I.tune}</span>Field properties</button><span class="div"></span>
+      <button class="btn sm icon ghost" title="Customize columns" onclick="toast('Customize columns panel: next build')"><span style="width:16px;height:16px;display:inline-block">${I.table}</span></button>
+      <button class="btn sm icon ghost" title="Filter" onclick="toast('Filter panel: next build')"><span style="width:16px;height:16px;display:inline-block">${I.filter}</span></button><span class="div"></span>
+      <button class="view" onclick="toast('View switcher: next build')"><small>View</small> ${D.view} <span style="width:14px;height:14px;display:inline-block">${I.chev}</span></button>
+    </div>
+    <div class="container">
+      <div class="split ${D.layout}">
+        <div class="left" style="${D.selectedCode?'':'flex:1 1 100%;max-width:100%'}">
+          <div class="gridhead"><h2>Projection codes<small>${codes.length} codes${ua.length?` · ${ua.length} unassigned`:''}</small></h2><div class="right"><button class="btn sm outline" id="actionsBtn" onclick="openActions(this)">Actions <span style="width:14px;height:14px;display:inline-block">${I.chev}</span></button></div></div>
+          <div class="gridwrap" id="codeGrid" style="--gh:${D.selectedCode?D.layout==='vertical'?'260px':'384px':'480px'}">${codeTable(codes,totals,ua)}</div>
+        </div>
+        ${D.selectedCode?`<div class="divhandle" title="Drag to resize"><div class="grip"></div></div><div class="pane">${paneHTML()}</div>`:''}
+      </div>
+    </div>
+    <div class="footer"><div class="status"></div>
+      <div class="actions"><button class="btn ghost" style="color:var(--text-muted)" onclick="toast('Changes are kept in this browser automatically')">Save as new draft</button><button class="btn primary" ${ua.length?'disabled title="Assign all phase/cost types first"':''} onclick="toast('Submit for review: next build')">Submit for review</button></div></div>
+  </div>`;
+  wireGrid(document.getElementById('codeGrid'),'code');
+  const pg=document.getElementById('phaseGrid'); if(pg) wireGrid(pg,'phase');
+  wireDivider();
+}
+function setLayout(l){ D.layout=l; save(); renderDraft(); }
+const SHORT={estInc:'Curr Est + Incl.',actCost:'Actual + Cmtd',projCost:'Projected Final',variance:'Variance',remCost:'Remaining',prevCost:'Prev. Projected',pctCost:'% Complete',estHours:'Curr Est Hours',actHours:'Actual Hours'};
+function headerCells(cols,short){ let left=0; return cols.filter(c=>c.vis).map((c,i)=>{ const st=c.sticky?`position:sticky;left:${left}px;`:''; if(c.sticky) left+=c.w; const last=c.sticky&&!(cols.filter(x=>x.vis)[i+1]||{}).sticky; return `<th class="${c.num?'num':''} ${c.sticky?'sticky':''} ${last?'stickyend':''}" style="width:${c.w}px;min-width:${c.w}px;${st}">${short&&SHORT[c.k]?SHORT[c.k]:c.label}${c.edit?`<span class="ico">${I.pencil}</span>`:''}</th>`; }).join(''); }
+function filterCells(cols){ let left=0; return cols.filter(c=>c.vis).map((c,i)=>{ const st=c.sticky?`position:sticky;left:${left}px;z-index:4;`:''; if(c.sticky) left+=c.w; const last=c.sticky&&!(cols.filter(x=>x.vis)[i+1]||{}).sticky; return `<th class="${c.sticky?'sticky':''} ${last?'stickyend':''}" style="${st}">${I.search}</th>`; }).join(''); }
+function bodyCells(cols,item,x,opts={}){ let left=0; const vis=cols.filter(c=>c.vis); return vis.map((c,i)=>{ const st=c.sticky?`position:sticky;left:${left}px;`:''; if(c.sticky) left+=c.w; const last=c.sticky&&!(vis[i+1]||{}).sticky; let cls=[c.num?'num':'',c.sticky?'sticky':'',last?'stickyend':'']; let val=c.get(item,x); if(opts.bucket){ if(c.k==='code'||c.k==='phase') { cls.push('bucket'); val=`Unassigned<span class="ico">${I.warn}</span>`; } else if(c.k==='desc') val=`${opts.bucket} phase/cost types without a code`; else if(['estInc','actCost','estHours','actHours'].includes(c.k)) val=c.get(item,x); else val= c.num?'—':''; }
+    else { if(c.heldable&&x.held) cls.push('held'); if(c.signed){ const raw=c.k==='variance'||c.k==='ouCost'?x.ouCost:(c.k==='ouHours'?x.ouHours:(c.k==='ouUnits'?x.ouUnits:x.netChange)); if(raw>0.005) cls.push('pos'); else if(raw<-0.005) cls.push('neg'); } if(c.edit&&!(opts.kind==='code'&&c.edit==='units')) { cls.push('editable'); if(x.mod&&c.k==='projCost') cls.push('mod'); } if(opts.kind==='code'&&c.k==='code'){ cls.push('codecell'); if(opts.sel) cls.push('selcode'); val=`<span class="codewrap">${opts.sel?'<span class="caret">▸</span>':'<span></span>'}<span class="codelink">${val}</span></span>`; } if(opts.sel&&c.k==='desc') cls.push('mod'); if(c.k==='projCost'&&x.drift){ cls.push('drift'); val+=`<span class="ico">${I.warn}</span>`; } }
+    return `<td class="${cls.join(' ')}" style="${st}" data-k="${c.k}" ${c.edit&&!opts.bucket?`data-edit="${c.edit}"`:''}>${val}</td>`; }).join(''); }
+function codeTable(codes,totals,ua){
+  const cols=CODE_COLS; const bucket='';
+  const rows=codes.map((c,i)=>`<tr class="${i%2?'zebra':''} ${D.selectedCode===c.code?'sel':''}" data-code="${c.code}">${bodyCells(cols,c,c.x,{kind:'code',sel:D.selectedCode===c.code})}<td class="action"><button class="btn xs icon ghost" title="Open details" style="width:28px;height:28px;border-radius:4px;border:1px solid var(--level2);background:#fff" onclick="event.stopPropagation();go('#detail/101/${c.code}')"><span style="width:14px;height:14px;display:inline-block">${I.pencil}</span></button></td></tr>`).join('');
+  const tot=`<tr>${(()=>{ let left=0; return cols.filter(c=>c.vis).map((c,i)=>{ const st=c.sticky?`position:sticky;left:${left}px;`:''; if(c.sticky) left+=c.w; const last=c.sticky&&!(cols.filter(x=>x.vis)[i+1]||{}).sticky; const map={code:'Totals',desc:'',estInc:fmt(totals.estInc),actCost:fmt(totals.actCost),pctCost:fmt(totals.pctCost)+'%',projCost:fmt(totals.projCost),variance:fmtSigned(totals.ouCost),ouCost:fmtSigned(totals.ouCost),remCost:fmt(totals.remCost),prevCost:fmt(totals.prevCost),estHours:fmt(totals.estHours),actHours:fmt(totals.actHours),projHours:fmt(totals.projHours),prevHours:fmt(totals.prevHours),remHours:fmt(totals.remHours),ouHours:fmtSigned(totals.ouHours),pctHours:fmt(totals.pctHours)+'%',fcCost:fmt(totals.forecastCost),fcHours:fmt(totals.forecastHours)}; const v=map[c.k]??''; const cls=[c.num?'num':'',c.sticky?'sticky':'',last?'stickyend':'',(c.k==='variance'||c.k==='ouCost')&&totals.ouCost>0?'pos':(c.k==='variance'||c.k==='ouCost')&&totals.ouCost<0?'neg':'']; return `<td class="${cls.join(' ')}" style="${st}">${v}</td>`; }).join(''); })()}<td class="action"></td></tr>`;
+  const totalW=cols.filter(c=>c.vis).reduce((a,c)=>a+c.w,0)+64; return `<table class="grid" style="width:${totalW}px;min-width:100%"><thead><tr>${headerCells(cols, !!D.selectedCode && D.layout==='horizontal')}<th class="action" style="width:64px;min-width:64px">Actions</th></tr><tr class="filter">${filterCells(cols)}<th class="action"></th></tr></thead><tbody>${bucket}${rows}</tbody><tfoot>${tot}</tfoot></table>`;
+}
+function paneHTML(){
+  const c=D.codes.find(c=>c.code===D.selectedCode); const x=codeCalc(c.code); const cols=PHASE_COLS;
+  const tot=(()=>{ let left=0; const s={estInc:x.estInc,actCost:x.actCost,projCost:x.projCost,ouCost:x.ouCost,remCost:x.remCost,prevCost:x.prevCost,estHours:x.estHours,actHours:x.actHours,projHours:x.projHours,prevHours:x.prevHours,ouHours:x.ouHours,remHours:x.remHours,pctCost:x.pctCost,pctHours:x.pctHours}; return cols.filter(k=>k.vis).map((k,i)=>{ const st=k.sticky?`position:sticky;left:${left}px;`:''; if(k.sticky) left+=k.w; const last=k.sticky&&!(cols.filter(y=>y.vis)[i+1]||{}).sticky; let v=''; if(k.k==='phase') v='Totals'; else if(k.k==='pdesc') v=''; else if(k.k==='pctCost'||k.k==='pctHours') v=fmt(s[k.k])+'%'; else if(k.signed&&s[k.k]!==undefined) v=fmtSigned(s[k.k]); else if(s[k.k]!==undefined) v=fmt(s[k.k]); const cls=[k.num?'num':'',k.sticky?'sticky':'',last?'stickyend':'',k.k==='ouCost'&&x.ouCost>0?'pos':k.k==='ouCost'&&x.ouCost<0?'neg':'']; return `<td class="${cls.join(' ')}" style="${st}">${v}</td>`; }).join(''); })();
+  return `<div class="ph"><div><h3>Phase / cost types</h3></div><button class="btn xs icon ghost" title="Close" onclick="selectCode(null)"><span style="width:14px;height:14px;display:inline-block">${I.close}</span></button></div>
+  <div class="gridwrap" id="phaseGrid" style="--gh:304px"><table class="grid" style="width:${cols.filter(k=>k.vis).reduce((a,k)=>a+k.w,0)}px;min-width:100%"><thead><tr>${headerCells(cols)}</tr><tr class="filter">${filterCells(cols)}</tr></thead><tbody>${x.phases.map((p,i)=>`<tr class="${i%2?'zebra':''}" data-phase="${p.id}">${bodyCells(cols,p,phaseCalc(p),{kind:'phase'})}</tr>`).join('')}</tbody><tfoot><tr>${tot}</tr></tfoot></table></div>
+  `;
+}
+function selectCode(code){ D.selectedCode=code; save(); renderDraft(); }
+
+/* ---------- grid interactions: row select + inline edit ---------- */
+function wireDivider(){
+  const dh=document.querySelector('.split .divhandle'); if(!dh) return;
+  const split=dh.closest('.split'); const left=split.querySelector('.left'); const pane=split.querySelector('.pane');
+  const isV=split.classList.contains('vertical');
+  let startPos,startLeft,startPane,totalSize;
+  dh.addEventListener('mousedown',e=>{e.preventDefault();
+    startPos=isV?e.clientY:e.clientX; const lr=left.getBoundingClientRect(); const pr=pane.getBoundingClientRect();
+    startLeft=isV?lr.height:lr.width; startPane=isV?pr.height:pr.width; totalSize=startLeft+startPane;
+    document.body.style.cursor=isV?'row-resize':'col-resize'; document.body.style.userSelect='none';
+    const move=ev=>{const d=(isV?ev.clientY:ev.clientX)-startPos; const nl=Math.max(200,Math.min(totalSize-200,startLeft+d)); const np=totalSize-nl; left.style.flex=`0 0 ${nl}px`; pane.style.flex=`0 0 ${np}px`;};
+    const up=()=>{document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);document.body.style.cursor='';document.body.style.userSelect='';};
+    document.addEventListener('mousemove',move); document.addEventListener('mouseup',up);
+  });
+}
+function wireGrid(wrap,kind){
+  if(!wrap) return;
+  wrap.querySelectorAll('tbody tr').forEach(tr=>{ tr.addEventListener('click',e=>{ if(e.target.closest('td.editing')||e.target.closest('button')||e.target.closest('td.editable')) return; if(kind==='code'){ const link=e.target.closest('td.codecell'); if(!link) return; const code=tr.dataset.code; if(code) selectCode(D.selectedCode===code?null:code); } }); });
+  wrap.querySelectorAll('td.editable').forEach(td=>{ td.addEventListener('dblclick',()=>startEdit(td,kind)); td.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key==='F2') startEdit(td,kind); }); td.tabIndex=0; td.title='Double-click or press Enter to edit'; });
+}
+function startEdit(td,kind){
+  if(td.classList.contains('editing')) return;
+  const tr=td.closest('tr'); const editType=td.dataset.edit; const raw=td.textContent.replace(/[^0-9.\-−]/g,'').replace('−','-');
+  td.classList.add('editing'); td.innerHTML=`<input type="text" inputmode="decimal" value="${raw}">`; const inp=td.querySelector('input'); inp.focus(); inp.select();
+  const finish=(commit)=>{ if(!td.classList.contains('editing')) return; const v=parseFloat(inp.value.replace(/,/g,'')); td.classList.remove('editing'); if(commit&&!isNaN(v)){ applyEdit(kind,tr,editType,v,td.dataset.k); } else renderDraft(); };
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ finish(true); } else if(e.key==='Escape'){ finish(false); } else if(e.key==='Tab'){ e.preventDefault(); finish(true); } });
+  inp.addEventListener('blur',()=>finish(true));
+}
+let flashKeys=new Set();
+function applyEdit(kind,tr,editType,v,k){
+  if(kind==='code'){ const code=tr.dataset.code; if(editType==='cost') setCodeProjCost(code,v); else if(editType==='hours') setCodeProjHours(code,v); flashKeys=new Set([`code:${code}`]); }
+  else { const p=D.phases.find(p=>p.id===tr.dataset.phase); if(editType==='cost') setPhaseProjCost(p,v); else if(editType==='hours') setPhaseProjHours(p,v); else setPhaseProjUnits(p,v); flashKeys=new Set([`phase:${p.id}`,`code:${p.code}`]); }
+  D.changes++; save(); renderDraft(); flashImpacted();
+}
+function flashImpacted(){
+  const impacted=['pctCost','pctHours','pctUnits','ouCost','ouHours','ouUnits','remCost','remHours','remUnits','projCost','projHours','projUnits','variance','fcCost','fcHours','netChange','modBy','modDate'];
+  document.querySelectorAll('#codeGrid tbody tr').forEach(tr=>{ if(flashKeys.has(`code:${tr.dataset.code}`)) tr.querySelectorAll('td').forEach(td=>{ if(impacted.includes(td.dataset.k)) td.classList.add('flash'); }); });
+  document.querySelectorAll('#phaseGrid tbody tr').forEach(tr=>{ if(flashKeys.has(`phase:${tr.dataset.phase}`)) tr.querySelectorAll('td').forEach(td=>{ if(impacted.includes(td.dataset.k)) td.classList.add('flash'); }); });
+  document.querySelectorAll('#codeGrid tfoot td, #phaseGrid tfoot td').forEach(td=>td.classList.add('flash'));
+  document.querySelectorAll('.ccard.working .row b').forEach(b=>{ b.style.transition='background .2s'; b.style.background='var(--success-pale)'; setTimeout(()=>b.style.background='',1800); });
+}
+
+
+/* =========================================================
+   DETAILS PAGE (sections as tabs)
+   ========================================================= */
+let detailSec='info', detailCode='1';
+function renderDetail(code){
+  detailCode=code; const c=D.codes.find(c=>c.code===code)||D.codes[0]; const x=codeCalc(c.code); const ua=unassigned();
+  const secs=[['info','Information'],['fco','Future Change Orders'],['costs','Costs'],['notes','Notes']];
+  const matrixRow=(lbl,vals,bold)=>`<tr><td>${lbl}</td>${vals.map((v,i)=>`<td class="num ${i===3&&String(v).startsWith('+')?'pos':''} ${i===5&&bold?'mod':''} ${i===5?'editable':''}" ${i===5?`data-edit="${lbl==='Costs'?'cost':(lbl==='Hours'?'hours':'units')}" data-k="final"`:''}>${v}</td>`).join('')}</tr>`;
+  const units=x.phases.reduce((a,p)=>({est:a.est+p.estUnits,act:a.act+p.actUnits,proj:a.proj+p.projUnits,prev:a.prev+p.prevUnits}),{est:0,act:0,proj:0,prev:0});
+  const info=`<h3><span style="width:16px;height:16px;display:inline-block">${I.table}</span>Information</h3><div class="hint">Units drive hours, hours drive costs. Changing Final units recalculates hours and costs; changing Final cost changes cost only.</div>
+    <div class="checks"><label><input type="checkbox" ${c.buyout?'checked':''} onchange="D.codes.find(k=>k.code==='${c.code}').buyout=this.checked;save()"> Buy out</label><label><input type="checkbox" ${c.plugged?'checked':''} onchange="D.codes.find(k=>k.code==='${c.code}').plugged=this.checked;save()"> Plugged</label></div>
+    <div class="gridwrap" id="matrixGrid"><table class="grid matrix" style="width:100%"><thead><tr><th style="width:70px"></th><th class="num">Curr Est + Incl. COs</th><th class="num">Actual + Cmtd</th><th class="num">% Complete</th><th class="num">Over / Under</th><th class="num">Remaining</th><th class="num">Final <span class="ico">${I.pencil}</span></th><th class="num">Previous</th><th class="num">Forecast</th></tr></thead><tbody>
+      ${matrixRow('Units',[fmt(units.est,3),fmt(units.act,3),fmt(units.proj?pct(units.act,units.proj):0)+'%',fmtSigned(units.proj-units.est,3),fmt(units.proj-units.act,3),fmt(units.proj,3),fmt(units.prev,3),fmt(Math.max(units.proj,units.act),3)])}
+      ${matrixRow('Hours',[fmt(x.estHours),fmt(x.actHours),fmt(x.pctHours)+'%',fmtSigned(x.ouHours),fmt(x.remHours),fmt(x.projHours),fmt(x.prevHours),fmt(x.forecastHours)])}
+      ${matrixRow('Costs',[fmt(x.estInc),fmt(x.actCost),fmt(x.pctCost)+'%',fmtSigned(x.ouCost),fmt(x.remCost),fmt(x.projCost),fmt(x.prevCost),fmt(x.forecastCost)],true)}
+      ${matrixRow('U/C',[fmt(x.estInc&&units.est?units.est/x.estInc:0,5),fmt(x.actCost&&units.act?units.act/x.actCost:0,5),'',fmt(0,5),fmt(0,5),fmt(x.projCost&&units.proj?units.proj/x.projCost:0,5),fmt(0,5),fmt(0,5)])}
+      ${matrixRow('U/HR',[fmt(x.estHours&&units.est?units.est/x.estHours:0,5),fmt(x.actHours&&units.act?units.act/x.actHours:0,5),'',fmt(0,5),fmt(0,5),fmt(x.projHours&&units.proj?units.proj/x.projHours:0,5),fmt(0,5),fmt(0,5)])}
+    </tbody></table></div>`;
+  const fcoRows=[{inc:true,type:'RFI',pco:'PCO-014',item:'1',desc:'Additional rebar at footing F3 per RFI 022',status:'Pending approval',hours:'96.00',cost:'4,800.00'},{inc:false,type:'Owner',pco:'PCO-017',item:'2',desc:'Extend SOG pour to loading dock',status:'Submitted',hours:'140.00',cost:'7,350.00'}];
+  const fco=`<h3>Future Change Orders</h3><div class="hint">Pending change orders that touch this code. Tick Include to add their estimated cost to the projection.</div>
+    <div class="gridwrap"><table class="grid compact" style="width:100%"><thead><tr><th style="width:80px">Include</th><th style="width:100px">PCO Type</th><th style="width:100px">PCO</th><th style="width:90px">PCO Item</th><th>Description</th><th style="width:140px">Status</th><th class="num" style="width:110px">Est Hours</th><th class="num" style="width:130px">Est Cost</th></tr></thead><tbody>${fcoRows.map((r,i)=>`<tr class="${i%2?'zebra':''}"><td><input type="checkbox" ${r.inc?'checked':''} onchange="toast('Future CO '+(this.checked?'included':'excluded')+' · next build recalculates the projection')"></td><td>${r.type}</td><td>${r.pco}</td><td>${r.item}</td><td>${r.desc}</td><td>${r.status}</td><td class="num">${r.hours}</td><td class="num">${r.cost}</td></tr>`).join('')}</tbody><tfoot><tr><td></td><td>Included</td><td></td><td></td><td>1 of 2 change orders</td><td></td><td class="num">96.00</td><td class="num">4,800.00</td></tr></tfoot></table></div>`;
+  const costRows=[['013100-1','1','JC CostAdj','10/2026','453','21/10/2026','Adjustment · reclass from 013200','MOS','0.320','0.00','0.00',''],['031500-1','1','PR Entry','10/2026','899','12/10/2026','J. Alvarez (Operator)','','0.000','22.00','385.00',''],['033120-1','1','PR Entry','10/2026','141','02/10/2026','M. Okafor (Laborer)','','0.000','8.00','140.00',''],['031110-1','1','AP Entry','09/2026','2231','29/09/2026','Pacific Rebar Supply · PO 4471','','0.000','0.00','2,410.00','Invoice']];
+  const costs=`<h3>Costs</h3><div class="hint">Posted transactions rolled into Actual + Committed. Open a line to audit where a number came from.</div>
+    <div class="gridwrap"><table class="grid compact" style="width:100%"><thead><tr><th style="width:100px">Phase</th><th style="width:70px">CT</th><th style="width:100px">Source</th><th style="width:80px">Month</th><th style="width:70px">Trans</th><th style="width:110px">Posted Date</th><th>Employee / Vendor</th><th style="width:60px">UM</th><th class="num" style="width:110px">Posted Units</th><th class="num" style="width:110px">Posted Hours</th><th class="num" style="width:120px">Posted Cost</th><th style="width:90px">Attach.</th></tr></thead><tbody>${costRows.map((r,i)=>`<tr class="${i%2?'zebra':''}">${r.map((v,j)=>`<td class="${j>=8&&j<=10?'num':''}">${j===11&&v?`<a href="#" onclick="event.preventDefault();toast('Invoice attachment: next build')">${v}</a>`:v}</td>`).join('')}</tr>`).join('')}</tbody><tfoot><tr><td>Totals</td><td></td><td></td><td></td><td></td><td></td><td>4 transactions</td><td></td><td class="num">0.320</td><td class="num">30.00</td><td class="num">2,935.00</td><td></td></tr></tfoot></table></div>`;
+  const notes=`<h3>Notes</h3><div class="hint">Explain the projection for reviewers. Notes appear in the Notes column of the grid.</div><div class="notes"><textarea placeholder="Why is this code over? e.g. extra rebar at F3 (PCO-014), two weeks of time mis-posted from 013200 now reclassed.">${D.notes?.[c.code]||''}</textarea><div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn sm outline" onclick="(D.notes=D.notes||{})['${c.code}']=this.closest('.notes').querySelector('textarea').value;save();toast('Note added')">Add note</button></div><div class="hist" style="margin-top:12px"><span>Thulsi Priya · 26-10-2026 13:10 — Projected ${fmt(x.projCost)}; screeds running over on hours.</span><span>Kellie Medeiros · 25-09-2026 09:42 — Sep projection posted at ${fmt(x.prevCost)}.</span></div></div>`;
+  const body={info,fco,costs,notes}[detailSec];
+  app.innerHTML=`<div class="page">
+    <div class="pagehead" style="top:60px"><button class="back" onclick="go('#draft/101')" aria-label="Back">${I.back}</button><h1>Projection Details</h1><div class="right"><button class="btn outline" onclick="toast('Reports')">Report <span style="width:14px;height:14px;display:inline-block">${I.chev}</span></button></div></div>
+    <div class="hdrblock" style="gap:0"><div class="meta"><div><div class="k">Projection Period</div><div class="v">${D.period}</div></div><div><div class="k">Job</div><div class="v">101 - Front Elevation for Tech Park</div></div><div><div class="k">Status</div><div class="v"><span class="badge draft">Draft</span></div></div><div><div class="k">Last Projection Update</div><div class="v">${D.lastUpdate}</div></div></div></div>
+    <div class="detail"><div class="nav">${secs.map(([k,l])=>`<button class="${detailSec===k?'on':''}" onclick="detailSec='${k}';renderDetail('${c.code}')">${l}</button>`).join('')}</div><div class="sec">${body}</div></div>
+    <div class="footer"><div class="status">Projection code ${c.code} · ${c.desc}</div><div class="actions"><button class="btn primary" onclick="go('#draft/101');toast('Changes saved to the draft')">Save Changes</button></div></div>
+  </div>`;
+  // Final column editing (cost / hours) at code level
+  app.querySelectorAll('#matrixGrid td.editable').forEach(td=>{ td.tabIndex=0; td.title='Double-click or press Enter to edit'; const start=()=>{ if(td.classList.contains('editing')) return; const raw=td.textContent.replace(/[^0-9.\-]/g,''); td.classList.add('editing'); td.innerHTML=`<input type="text" inputmode="decimal" value="${raw}">`; const inp=td.querySelector('input'); inp.focus(); inp.select(); const finish=(ok)=>{ if(!td.classList.contains('editing')) return; td.classList.remove('editing'); const v=parseFloat(inp.value.replace(/,/g,'')); if(ok&&!isNaN(v)){ if(td.dataset.edit==='cost') setCodeProjCost(c.code,v); else if(td.dataset.edit==='hours') setCodeProjHours(c.code,v); else { toast('Units are per phase; edit them in the phase/cost type grid'); } D.changes++; save(); } renderDetail(c.code); }; inp.addEventListener('keydown',e=>{ if(e.key==='Enter') finish(true); else if(e.key==='Escape') finish(false); }); inp.addEventListener('blur',()=>finish(true)); }; td.addEventListener('dblclick',start); td.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key==='F2') start(); }); });
+}
+
+/* =========================================================
+   ASSIGN DRAWER
+   ========================================================= */
+const drawer=document.getElementById('drawer'), scrim=document.getElementById('scrim'), modal=document.getElementById('modal');
+let assignSel={};
+function openAssign(onlyId){
+  const ua=unassigned().filter(p=>!onlyId||p.id===onlyId); assignSel={};
+  const suggest=p=>{ const byCt=D.codes.find(c=>D.phases.some(q=>q.code===c.code&&q.ct===p.ct)); return byCt?{code:byCt.code,why:`same cost type as code ${byCt.code} · ${byCt.desc}`}:null; };
+  drawer.innerHTML=`<div class="body"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><h3>Assign Projection Code</h3><div class="muted" style="font-size:12px;margin-top:4px">This updates the job's projection code setup, not just this draft.</div></div><button class="btn xs icon ghost" aria-label="Close" onclick="closeDrawer()"><span style="width:14px;height:14px;display:inline-block">${I.close}</span></button></div>
+    ${ua.map(p=>{ const s=null; return `<div class="ucard"><div class="ph"><span>${p.phase} – ${p.ct} · ${p.pdesc} | ${p.cdesc}</span></div><div class="kv"><span>Current estimate</span><span class="num">${fmt(p.estCost)}</span><span>Actual + committed</span><span class="num">${fmt(p.actCost)}</span></div><div><label class="muted" style="font-size:11px;font-weight:600;display:block;margin:0 10px 4px">Projection code</label><select data-id="${p.id}" onchange="assignSel['${p.id}']=this.value;updateAssignBtn()"><option value="">Select a projection code…</option>${D.codes.map(c=>`<option value="${c.code}" ${s&&s.code===c.code?'selected':''}>${c.code} · ${c.desc}</option>`).join('')}</select></div></div>`; }).join('')}</div>
+    <div class="foot"><button class="btn link" onclick="toast('Create projection code: next build')">Create a new projection code</button><button class="btn sm outline" onclick="closeDrawer()">Cancel</button><button class="btn sm primary" id="assignBtn" onclick="doAssign()">Assign</button></div>`;
+  drawer.classList.add('open'); document.body.classList.add('drawer-open'); drawer.setAttribute('aria-hidden','false'); updateAssignBtn();
+}
+function updateAssignBtn(){ const n=Object.values(assignSel).filter(Boolean).length; const b=document.getElementById('assignBtn'); if(b){ b.textContent='Assign'; b.disabled=n===0; } }
+function doAssign(){ let n=0; for(const [id,code] of Object.entries(assignSel)){ if(!code) continue; const p=D.phases.find(p=>p.id===id); p.code=code; p.prevCost=p.estCost; n++; } D.jobs.find(j=>j.job==='101').unassigned=unassigned().length; if(D.selectedCode==='__unassigned'&&!unassigned().length) D.selectedCode=null; save(); closeDrawer(); renderDraft(); toast(`${n} phase/cost type${n>1?'s':''} assigned · totals updated${unassigned().length?'':' · Submit enabled'}`); }
+function closeDrawer(){ drawer.classList.remove('open'); document.body.classList.remove('drawer-open'); scrim.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); modal.classList.remove('open'); }
+scrim.addEventListener('click',closeDrawer);
+
+/* =========================================================
+   ACTIONS MENU
+   ========================================================= */
+function openStatusMenu(btn){ closeMenus(); const r=btn.getBoundingClientRect(); const m=document.createElement('div'); m.className='menu'; m.style.top=(r.bottom+window.scrollY+4)+'px'; m.style.left=(r.left+window.scrollX)+'px'; m.style.minWidth=r.width+'px';
+  const items=[['','All Status'],['Draft','Draft'],['Submitted','Submitted'],['Approved','Approved'],['Posted','Posted'],['Yet to start','Yet to start']];
+  m.innerHTML=items.map(([v,l])=>`<button class="${(landingFilter.status||'')===v?'on':''}" onclick="setLF(${v?`'${v}'`:'null'})">${l}</button>`).join('');
+  document.body.appendChild(m); m.addEventListener('click',e=>e.stopPropagation()); setTimeout(()=>document.addEventListener('click',closeMenus,{once:true}),0); }
+function openActions(btn){ closeMenus(); const r=btn.getBoundingClientRect(); const m=document.createElement('div'); m.className='menu'; m.id='actionsMenu'; m.style.top=(r.bottom+window.scrollY+4)+'px'; m.style.left=(r.right+window.scrollX-260)+'px';
+  m.innerHTML=`<button onclick="resetProjection()">Reset Projection</button><button onclick="toast('Adjust Projection modal: next build')">Adjust Projection</button>`; m.style.minWidth='210px'; m.style.left=(r.right+window.scrollX-210)+'px';
+  document.body.appendChild(m); setTimeout(()=>document.addEventListener('click',closeMenus,{once:true}),0); }
+function closeMenus(){ document.querySelectorAll('.menu,.popover').forEach(n=>n.remove()); }
+function resetProjection(){ modal.innerHTML=`<div class="mb"><h3 style="font-size:18px">Reset projection?</h3><p class="muted" style="margin:0">This will remove every manual forecast in this draft for job 101. All ${D.codes.length} projection codes will reset to their current estimates. The last posted projection is not affected.</p><div style="padding:10px 12px;border-radius:8px;background:var(--warning-pale);border:1px solid var(--warning);font-weight:600">This cannot be undone. ${D.changes} unsaved change${D.changes===1?'':'s'} will be lost.</div></div><div class="mf"><button class="btn outline" onclick="closeDrawer()">Cancel</button><button class="btn danger" onclick="doReset()">Reset projection</button></div>`; modal.classList.add('open'); scrim.classList.add('open'); }
+function doReset(){ const seed=seedData(); seed.layout=D.layout; seed.selectedCode=D.selectedCode; D.phases.forEach(p=>{ const s=seed.phases.find(q=>q.id===p.id); if(s){ p.projCost=s.estCost+s.inclCO; p.projHours=s.estHours; p.projUnits=s.estUnits; p.mod=false; } }); D.changes=0; save(); closeDrawer(); renderDraft(); toast('Projection reset to current estimates'); }
+
+/* =========================================================
+   CALENDAR (projection period = end of month)
+   ========================================================= */
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const TODAY=new Date(2026,9,30); // demo clock
+function parsePeriod(str){ const [d,m,y]=str.split('-').map(Number); return new Date(y,m-1,d); }
+function endOfMonth(y,m){ return new Date(y,m+1,0); }
+function fmtDate(d){ const p=n=>String(n).padStart(2,'0'); return `${p(d.getDate())}-${p(d.getMonth()+1)}-${d.getFullYear()}`; }
+let calView=null;
+function toggleCal(btn){ const ex=document.getElementById('calPop'); if(ex){ ex.remove(); return; } closeMenus(); const sel=parsePeriod(D.period); calView={y:sel.getFullYear(),m:sel.getMonth()}; const pop=document.createElement('div'); pop.className='cal'; pop.id='calPop'; const r=btn.closest('.inputwrap').getBoundingClientRect(); pop.style.top=(r.bottom+window.scrollY+6)+'px'; pop.style.left=(r.left+window.scrollX)+'px'; document.body.appendChild(pop); renderCal(); pop.addEventListener('click',e=>e.stopPropagation()); setTimeout(()=>document.addEventListener('click',function h(e){ if(!document.getElementById('calPop')) return document.removeEventListener('click',h); if(!e.target.closest('#calPop')){ document.getElementById('calPop')?.remove(); document.removeEventListener('click',h);} }),0); }
+function renderCal(){ const pop=document.getElementById('calPop'); if(!pop) return; const {y,m}=calView; const sel=parsePeriod(D.period); const first=new Date(y,m,1); const startDow=first.getDay(); const dim=endOfMonth(y,m).getDate(); const prevDim=endOfMonth(y,m-1).getDate(); const cells=[]; for(let i=0;i<42;i++){ const n=i-startDow+1; let d,other=false; if(n<1){ d=new Date(y,m-1,prevDim+n); other=true; } else if(n>dim){ d=new Date(y,m+1,n-dim); other=true; } else d=new Date(y,m,n); cells.push({d,other}); }
+  const years=[]; for(let yy=2024; yy<=2028; yy++) years.push(yy);
+  pop.innerHTML=`<div class="ch"><button class="nav" aria-label="Previous month" onclick="calView.m--; if(calView.m<0){calView.m=11;calView.y--;} renderCal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+    <select aria-label="Month" onchange="calView.m=+this.value;renderCal()">${MONTHS.map((n,i)=>`<option value="${i}" ${i===m?'selected':''}>${n}</option>`).join('')}</select>
+    <select aria-label="Year" onchange="calView.y=+this.value;renderCal()">${years.map(yy=>`<option ${yy===y?'selected':''}>${yy}</option>`).join('')}</select>
+    <button class="nav" aria-label="Next month" onclick="calView.m++; if(calView.m>11){calView.m=0;calView.y++;} renderCal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button></div>
+    <div class="cb"><div class="grid7">${['Su','Mo','Tu','We','Th','Fr','Sa'].map(w=>`<div class="wd">${w}</div>`).join('')}${cells.map(c=>{ const isSel=c.d.getTime()===sel.getTime(); const isToday=c.d.toDateString()===TODAY.toDateString(); const eom=!c.other&&c.d.getDate()===dim; return `<button class="d ${c.other?'other':''} ${isSel?'sel':''} ${isToday?'today':''} ${eom?'eom':''}" title="Select ${MONTHS[c.d.getMonth()]} ${c.d.getFullYear()} · period ends ${fmtDate(endOfMonth(c.d.getFullYear(),c.d.getMonth()))}" onclick="pickPeriod(${c.d.getFullYear()},${c.d.getMonth()})">${c.d.getDate()}</button>`; }).join('')}</div></div>
+    <div style="padding:0 24px 16px;font-size:12px;color:var(--text-muted);text-align:center">Projections run per month: picking any day sets the period to the last day of that month.</div>`; }
+function pickPeriod(y,m){ const eom=endOfMonth(y,m); D.period=fmtDate(eom); save(); document.getElementById('calPop')?.remove(); 
+// Scroll-driven auto-collapse of contract info
+let lastScroll=0;
+window.addEventListener('scroll',()=>{
+  if(!location.hash.startsWith('#draft')) return;
+  const hdr=document.querySelector('.hdrblock'); if(!hdr) return;
+  const y=window.scrollY;
+  if(y>200 && !collapsed){ collapsed=true; renderDraft(); }
+  else if(y<80 && collapsed){ collapsed=false; renderDraft(); }
+},{passive:true});
+
+render(); toast(`Projection period set to ${D.period}`); }
+
+/* =========================================================
+   PROTOTYPE MENU / TOAST
+   ========================================================= */
+document.getElementById('protoBtn').addEventListener('click',e=>{ e.stopPropagation(); document.getElementById('protoMenu').classList.toggle('hidden'); });
+document.getElementById('protoMenu').addEventListener('click',e=>{ const a=e.target.dataset.act; document.getElementById('protoMenu').classList.add('hidden'); if(a==='reset'){ localStorage.removeItem(STORE_KEY); D=seedData(); landingFilter={status:null,over:false}; 
+// Scroll-driven auto-collapse of contract info
+let lastScroll=0;
+window.addEventListener('scroll',()=>{
+  if(!location.hash.startsWith('#draft')) return;
+  const hdr=document.querySelector('.hdrblock'); if(!hdr) return;
+  const y=window.scrollY;
+  if(y>200 && !collapsed){ collapsed=true; renderDraft(); }
+  else if(y<80 && collapsed){ collapsed=false; renderDraft(); }
+},{passive:true});
+
+render(); toast('Demo data reset'); } if(a==='drift'){ const p=D.phases.find(p=>p.id==='051000-3'); if(p.projCost>p.actCost){ p.projCost=p.actCost-9151; p.mod=true; } else { p.projCost=1171135; } save(); 
+// Scroll-driven auto-collapse of contract info
+let lastScroll=0;
+window.addEventListener('scroll',()=>{
+  if(!location.hash.startsWith('#draft')) return;
+  const hdr=document.querySelector('.hdrblock'); if(!hdr) return;
+  const y=window.scrollY;
+  if(y>200 && !collapsed){ collapsed=true; renderDraft(); }
+  else if(y<80 && collapsed){ collapsed=false; renderDraft(); }
+},{passive:true});
+
+render(); toast('Drift toggled on Subcontracts · Structural Steel'); } if(a==='assignall'){ unassigned().forEach(p=>{ p.code= p.ct==='1'?'1':'8'; p.prevCost=p.estCost; }); D.jobs.find(j=>j.job==='101').unassigned=0; save(); 
+// Scroll-driven auto-collapse of contract info
+let lastScroll=0;
+window.addEventListener('scroll',()=>{
+  if(!location.hash.startsWith('#draft')) return;
+  const hdr=document.querySelector('.hdrblock'); if(!hdr) return;
+  const y=window.scrollY;
+  if(y>200 && !collapsed){ collapsed=true; renderDraft(); }
+  else if(y<80 && collapsed){ collapsed=false; renderDraft(); }
+},{passive:true});
+
+render(); toast('All phase/cost types assigned'); } });
+document.addEventListener('click',()=>document.getElementById('protoMenu').classList.add('hidden'));
+let toastT; function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600); }
+
+
+// Scroll-driven auto-collapse of contract info
+let lastScroll=0;
+window.addEventListener('scroll',()=>{
+  if(!location.hash.startsWith('#draft')) return;
+  const hdr=document.querySelector('.hdrblock'); if(!hdr) return;
+  const y=window.scrollY;
+  if(y>200 && !collapsed){ collapsed=true; renderDraft(); }
+  else if(y<80 && collapsed){ collapsed=false; renderDraft(); }
+},{passive:true});
+
+render();
+</script>
+</body>
+</html>
