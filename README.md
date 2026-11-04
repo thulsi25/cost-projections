@@ -4,8 +4,8 @@ Interactive HTML prototype of the unified **Cost Projections** experience for Vi
 
 ## Open it
 
+- **Live prototype:** https://jade-beignet-596634.netlify.app/#landing (hosted on Netlify, auto-deploys from this repo)
 - **No setup:** download `index.html` and double‑click it. Everything (styles, scripts, sample data) is in the one file.
-- **Live link:** if GitHub Pages is enabled on this repo, the prototype is served from the Pages URL shown under *Settings → Pages*.
 
 ## What's in it
 
