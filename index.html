@@ -166,14 +166,16 @@ tr.draftrow td:first-child::after{content:'';position:absolute;left:-1px;top:0;b
 .gridhead .right{display:flex;gap:8px;align-items:center}
 
 /* ---------- grid ---------- */
-.gridwrap{position:relative;border:0;border-radius:0;overflow:auto;max-height:var(--gh,520px);background:#fff}
-table.grid{border-collapse:separate;border-spacing:0;min-width:100%;table-layout:fixed;border-top:1px solid var(--level2);border-left:1px solid var(--level2)}
+.gridwrap{position:relative;border:0;border-radius:0;overflow:hidden;max-height:var(--gh,520px);background:#fff}
+table.grid{border-collapse:separate;border-spacing:0;min-width:100%;table-layout:fixed;border:1px solid var(--level2);border-radius:8px}
 table.grid th,table.grid td{border-right:1px solid var(--level2);border-bottom:1px solid var(--level2);padding:0 16px;height:40px;background:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;line-height:20px}
 table.grid.compact td{font-size:12px}
 .has-alert .toolbar{top:152px}
 .has-alert .alert{top:108px}
 table.grid thead th{position:sticky;top:0;z-index:3;font-weight:600;text-align:left;border-bottom-width:1px;height:40px;background:#fff;color:#252A2E;font-size:13px}
-table.grid thead tr.filter th{top:40px;height:28px;border-bottom:4px solid var(--level2b);padding:0 8px;z-index:3;background:#fff}
+table.grid thead tr th{border-bottom:1px solid var(--level2)}
+table.grid thead tr:first-child th{border-bottom:4px solid var(--level2b)}
+table.grid thead tr.filter th{top:40px;height:28px;border-bottom:1px solid var(--level2);padding:0 8px;z-index:3;background:#fff}
 table.grid thead tr.filter th svg{width:12px;height:12px;color:var(--text)}
 table.grid td.num,table.grid th.num{text-align:right}
 table.grid tbody tr.zebra td{background:var(--level1)}
