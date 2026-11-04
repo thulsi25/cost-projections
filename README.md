@@ -30,3 +30,11 @@ Excludes revenue projections, projection overrides and projection layouts.
 ## Feedback
 
 Open an **Issue** in this repo, or comment directly in the Figma file.
+
+## Multiple drafts & saved views (Nov 2026) — matched to Figma
+- Landing: job 101 expands (chevron) into its drafts — one light-gray group with top/bottom borders, Primary pill on the primary draft, "You" as modifier, an Open button per draft. The job row shows the Primary draft's numbers and "Open Primary".
+- Projection page header: draft switcher (name ▾) → menu with each draft + "Edited X ago" + Primary badge, divider, "Duplicate this draft", "New blank draft". Primary badge or "Set as Primary" button next to the switcher, then a ⋮ menu with Rename draft / Delete draft.
+- Dialogs (per Figma): Duplicate draft (name prefilled "Copy of …", Set as Primary checkbox, Cancel / Duplicate and Open), New Draft (Create and Open), Rename draft (Save Change), Delete Draft (Cancel / Delete).
+- "Save as new draft" removed. "Submit for review" enabled only on the Primary draft with everything assigned; disabled otherwise with a dark tooltip: "Set this draft as Primary to submit it for review".
+- View dropdown lists the four saved views (Thulsi's / Kellie's / Angeline's project views, Adam's view); switching swaps the column set on both grids.
+- Demo data for returning visitors migrates automatically (drafts added on load).

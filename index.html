@@ -29,6 +29,47 @@ h1,h2,h3{margin:0;font-weight:600}
 .hidden{display:none !important}
 :focus-visible{outline:2px solid var(--primary);outline-offset:1px}
 
+/* ---------- multiple drafts & saved views (per Figma) ---------- */
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chevbtn{width:22px;height:22px;border:0;background:none;border-radius:4px;display:inline-grid;place-items:center;cursor:pointer;margin-right:6px;vertical-align:middle;color:var(--text);padding:0}
+.chevbtn:hover{background:var(--level2b)}
+.chevbtn svg{width:14px;height:14px;transition:transform .15s;transform:rotate(0deg)}
+.chevbtn.open svg{transform:rotate(180deg)}
+.chevbtn.ph{visibility:hidden}
+.countchip{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:9999px;border:0;color:var(--text);font-size:12px;font-weight:600;background:var(--level2b);margin-left:6px;vertical-align:middle}
+table.grid tr.grp td{background:var(--level1) !important}
+table.grid tr.draftrow td{background:var(--level1) !important;border-right-color:var(--level1) !important}
+table.grid tr.draftrow td.stickyend{border-right-color:var(--level1) !important}
+table.grid tr.draftrow td.action{border-left-color:var(--level1) !important}
+tr.draftrow td:first-child::after{content:'';position:absolute;left:-1px;top:0;bottom:-1px;width:1px;background:var(--level1)}
+.badge.primary{height:18px;padding:0 8px;border:0;background:var(--primary);color:#fff;font-size:10px;font-weight:700;margin-left:8px;vertical-align:middle}
+.badge.primary.sq{border-radius:4px;height:24px;font-size:12px}
+.kebabbtn{width:24px;height:24px;border:0;background:none;border-radius:4px;display:inline-grid;place-items:center;cursor:pointer;color:var(--text);font-size:15px;font-weight:700;padding:0;vertical-align:middle}
+.kebabbtn:hover{background:var(--level1)}
+.draftsw{display:inline-flex;align-items:center;gap:8px;height:32px;border:1px solid var(--level2b);border-radius:8px;padding:0 12px;background:#fff;cursor:pointer;font-weight:600;font-size:14px;margin-left:8px;color:var(--text)}
+.draftsw:hover{border-color:var(--level3)}
+.btn.default{background:#F5F5F8;border:0;color:var(--text);font-weight:600}
+.btn.default:hover{background:var(--level2b)}
+.linkbtn{border:0;background:none;color:var(--primary);font-weight:600;font-size:13px;cursor:pointer;padding:4px 6px;border-radius:4px}
+.linkbtn:hover{text-decoration:underline}
+/* draft switcher menu (Figma: radius 4, #CBCDD6 stroke, 0 4 12 16% shadow) */
+.dmenu{position:absolute;background:#fff;border:1px solid var(--level3);border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.16);min-width:360px;padding:4px;z-index:45}
+.dmenu button{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;text-align:left;border:0;background:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:14px;line-height:20px;color:var(--text)}
+.dmenu button:hover{background:var(--level1)}
+.dmenu button small{display:block;color:var(--text-muted);font-size:10px;line-height:14px}
+.dmenu button svg{width:16px;height:16px;flex:0 0 16px}
+.dmenu .div{height:1px;background:var(--level3);margin:4px 0}
+/* modal per Figma (536 wide, 24 padding, X close, checkbox footer) */
+.modal .mhead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.modal .mhead h3{font-size:18px;font-weight:700}
+.modal .mdesc{font-size:16px;margin:0;color:var(--text)}
+.modal .mlabel{font-size:12px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px}
+.modal .chk{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--text);cursor:pointer;margin-right:auto}
+.modal .chk input{width:16px;height:16px;accent-color:var(--primary)}
+.btn.md{height:40px;padding:0 16px;font-size:16px;font-weight:600;border-radius:8px}
+.tipwrap{position:relative;display:inline-flex}
+.tipwrap[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 9px);right:0;background:#252A2E;color:#fff;font-size:12px;line-height:16px;font-weight:400;padding:6px 10px;border-radius:4px;white-space:nowrap;z-index:80;box-shadow:var(--shadow)}
+.tipwrap[data-tip]:hover::before{content:'';position:absolute;bottom:calc(100% + 3px);right:24px;border:6px solid transparent;border-top-color:#252A2E;z-index:80}
 /* ---------- top nav ---------- */
 .topnav{height:60px;display:flex;align-items:center;gap:16px;padding:6px 12px;border-bottom:1px solid var(--level2);background:#fff;position:fixed;top:0;left:0;right:0;z-index:20}
 .topnav .hamb{width:32px;height:32px;border:0;background:var(--level1);border-radius:8px;display:grid;place-items:center;cursor:pointer}
@@ -97,9 +138,9 @@ h1,h2,h3{margin:0;font-weight:600}
 .toplist a:hover{text-decoration:underline}
 .toplist .code{width:36px;font-weight:600;color:var(--primary)}
 .toplist .desc{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.toplist .amt{font-weight:600;color:var(--error)}
-.toplist .pct{width:44px;text-align:right;font-weight:600;color:var(--error)}
-.warnline{color:var(--warning-dark);font-weight:600;font-size:12px;display:flex;align-items:center;gap:8px}
+.toplist .amt{font-weight:600;color:var(--error-dark)}
+.toplist .pct{width:44px;text-align:right;font-weight:600;color:var(--error-dark)}
+.warnline{color:var(--warning);font-weight:600;font-size:12px;display:flex;align-items:center;gap:8px}
 
 /* ---------- period block (landing) ---------- */
 .block{border:1px solid var(--level2);border-radius:8px;padding:16px;background:rgba(241,241,246,.32)}
@@ -132,7 +173,7 @@ table.grid.compact td{font-size:12px}
 .has-alert .toolbar{top:152px}
 .has-alert .alert{top:108px}
 table.grid thead th{position:sticky;top:0;z-index:3;font-weight:600;text-align:left;border-bottom-width:1px;height:40px;background:#fff;color:#252A2E;font-size:13px}
-table.grid thead tr.filter th{top:40px;height:28px;border-bottom-width:1px;padding:0 8px;z-index:3;background:#fff}
+table.grid thead tr.filter th{top:40px;height:28px;border-bottom:4px solid var(--level2b);padding:0 8px;z-index:3;background:#fff}
 table.grid thead tr.filter th svg{width:12px;height:12px;color:var(--text)}
 table.grid td.num,table.grid th.num{text-align:right}
 table.grid tbody tr.zebra td{background:var(--level1)}
@@ -141,10 +182,10 @@ table.grid tbody tr.sel td{background:#EDF4FB}
 table.grid tbody tr:hover td{filter:brightness(.985)}
 table.grid td.sticky,table.grid th.sticky{position:sticky;z-index:2}
 table.grid thead th.sticky{z-index:4}
-table.grid .stickyend{border-right:2px solid var(--level2)}
-table.grid td.action,table.grid th.action{position:sticky;right:0;z-index:2;border-left:1px solid var(--level2);border-right:0;text-align:center;padding:0 12px}
+table.grid .stickyend{border-right:4px solid var(--level2)}
+table.grid td.action,table.grid th.action{position:sticky;right:0;z-index:2;border-left:4px solid var(--level2);border-right:0;text-align:center;padding:0 12px;text-overflow:clip}
 table.grid thead th.action{z-index:4}
-table.grid tfoot td{position:sticky;bottom:0;z-index:3;font-weight:600;background:#fff;border-top:0}
+table.grid tfoot td{position:sticky;bottom:0;z-index:3;font-weight:600;background:#fff;border-top:4px solid var(--level2b)}
 table.grid tfoot td.sticky{z-index:5}
 table.grid td.editable{cursor:text}
 table.grid td.editable:hover{box-shadow:inset 0 0 0 1px var(--primary)}
@@ -372,10 +413,15 @@ function seedData(){
     {job:'107',desc:'First Floor Lift Area',status:'Yet to start',pct:0,modified:'',by:'',budget:1000,projected:null},
   ];
   phases.forEach(p=>{ if(p.code && Math.abs(p.projCost-(p.estCost+p.inclCO))>0.005) p.mod=true; });
-  return {phases,codes,jobs,revenue:2950000.00,lastUpdate:'07-10-2024 | 11:22',period:'31-10-2026',layout:'horizontal',selectedCode:null,view:'Thulsi’s project view',changes:0,drift:false};
+  return {phases,codes,jobs,revenue:2950000.00,lastUpdate:'07-10-2024 | 11:22',period:'31-10-2026',layout:'horizontal',selectedCode:null,view:'Thulsi’s project view',changes:0,drift:false,activeDraft:'d1',
+    drafts:[
+      {id:'d1',name:'Nov 2026 projection',primary:true,live:true,projected:null,pct:15,modified:'26-10-2026 | 13:10',edited:'2h ago'},
+      {id:'d2',name:'Subs +10%',primary:false,live:false,projected:2210000,pct:14,modified:'25-10-2026 | 16:42',edited:'yesterday'},
+      {id:'d3',name:'Without CO 014',primary:false,live:false,projected:1980000,pct:16,modified:'23-10-2026 | 09:05',edited:'3d ago'}
+    ]};
 }
 let D=load();
-function load(){ try{ const s=localStorage.getItem(STORE_KEY); if(s) return JSON.parse(s);}catch(e){} return seedData(); }
+function load(){ try{ const s=localStorage.getItem(STORE_KEY); if(s){ const d=JSON.parse(s); if(!d.drafts){ const seed=seedData(); d.drafts=seed.drafts; d.activeDraft=seed.activeDraft; } if(!d.view) d.view='Thulsi\u2019s project view'; return d; } }catch(e){} return seedData(); }
 function save(){ try{ localStorage.setItem(STORE_KEY,JSON.stringify(D)); }catch(e){} }
 
 /* =========================================================
@@ -514,7 +560,9 @@ const I={
   side:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M14 5v14"/></svg>',
   stack:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 13h18"/></svg>',
   close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
-  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg>'
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg>',
+  copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="1"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
 };
 
 /* =========================================================
@@ -529,9 +577,10 @@ function render(){ closeMenus(); closeDrawer(); const h=location.hash||'#landing
    LANDING
    ========================================================= */
 let landingFilter={status:null,over:false};
-function jobNumbers(j){ if(j.live){ const codes=D.codes.map(c=>codeCalc(c.code)); const proj=codes.reduce((a,c)=>a+c.projCost,0); const bud=codes.reduce((a,c)=>a+c.estInc,0); return {projected:proj,budget:bud}; } return {projected:j.projected,budget:j.budget}; }
+let draftsOpen=true;
+function jobNumbers(j){ if(j.live){ const codes=D.codes.map(c=>codeCalc(c.code)); const bud=codes.reduce((a,c)=>a+c.estInc,0); const n=draftNumbers(primaryDraft()); return {projected:n.projected,budget:bud}; } return {projected:j.projected,budget:j.budget}; }
 function renderLanding(){
-  const jobs=D.jobs.map(j=>({...j,...jobNumbers(j)}));
+  const jobs=D.jobs.map(j=>{ const o={...j,...jobNumbers(j)}; if(j.live){ const pd=primaryDraft(); const n=draftNumbers(pd); o.pct=n.pct; o.modified=pd.modified; } return o; });
   const over=jobs.filter(j=>j.projected!==null&&j.projected>j.budget*1.005&&j.pct>=MIN_PCT).map(j=>({...j,overAmt:j.projected-j.budget,overPct:pct(j.projected-j.budget,j.budget)})).sort((a,b)=>b.overAmt-a.overAmt);
   const counts={Draft:jobs.filter(j=>j.status==='Draft').length,Submitted:jobs.filter(j=>j.status==='Submitted').length,Approved:jobs.filter(j=>['Approved','Posted'].includes(j.status)).length,Yet:jobs.filter(j=>j.status==='Yet to start').length};
   const attention=jobs.filter(j=>j.unassigned).length;
@@ -541,6 +590,10 @@ function renderLanding(){
   const action=j=>{ if(j.status==='Draft') return `<button class="btn xs outline primary-outline" onclick="openDraft('${j.job}')">Open Draft</button>`; if(j.status==='Yet to start') return `<button class="btn xs outline primary-outline" onclick="toast('Start Draft: initialize step is out of Phase 1 scope')">Start Draft</button>`; return `<button class="btn xs outline primary-outline" onclick="toast('Read-only view: next build')">View</button>`; };
   const topRows=over.slice(0,3).map(j=>`<a href="#" onclick="event.preventDefault();openDraft('${j.job}')"><span class="code">${j.job}</span><span class="desc">${j.desc}</span><span class="amt">+$${j.overAmt.toLocaleString('en-US',{maximumFractionDigits:0})}</span><span class="pct">+${j.overPct.toFixed(0)}%</span></a>`).join('');
   const overTotal=over.reduce((a,j)=>a+j.overAmt,0);
+  const chevFor=j=> j.job==='101' ? `<button class="chevbtn ${draftsOpen?'open':''}" aria-label="${draftsOpen?'Collapse':'Expand'} drafts for job 101" aria-expanded="${draftsOpen}" onclick="event.stopPropagation();toggleDrafts()">${I.chev}</button>` : `<span class="chevbtn ph" aria-hidden="true">${I.chev}</span>`;
+  const draftRowsHTML=()=> D.drafts.map((d,k)=>{ const n=draftNumbers(d); return `<tr class="draftrow ${k===D.drafts.length-1?'last':''}"><td class="sticky" style="left:0"></td><td class="sticky stickyend" style="left:120px"><span style="font-weight:${d.primary?600:400}">${d.name}</span>${d.primary?'<span class="badge primary">Primary</span>':''}</td><td></td><td></td><td class="num" style="${d.primary?'font-weight:600':''}">$ ${fmt(n.projected)}</td><td><span class="bar"><i><b style="width:${n.pct}%"></b></i>${n.pct}%</span></td><td class="muted">${d.modified}</td><td class="muted">You</td><td class="action"><button class="linkbtn" onclick="openDraftRow('${d.id}')">Open</button></td></tr>`; }).join('');
+  const jobRowHTML=(j,i)=>{ const multi=j.job==='101'; const act= multi&&j.status==='Draft' ? `<button class="btn xs outline primary-outline" onclick="openDraftRow('${primaryDraft().id}')">${draftsOpen?'Open Primary':'Open Draft'}</button>` : action(j); const status= multi? `${statusBadge(j.status)}<span class="countchip" title="${D.drafts.length} drafts">${D.drafts.length}</span>` : statusBadge(j.status);
+    return `<tr class="${i%2?'zebra':''} ${multi&&draftsOpen?'grp':''}"><td class="sticky" style="left:0">${chevFor(j)}${j.job}</td><td class="sticky stickyend" style="left:120px">${j.desc}</td><td>${status}</td><td>${notif(j)}</td><td class="num">${j.projected===null?'--':'$ '+fmt(j.projected)}</td><td><span class="bar"><i><b style="width:${j.pct}%"></b></i>${j.pct}%</span></td><td class="muted">${j.modified||'--'}</td><td class="muted">${j.by||'--'}</td><td class="action">${act}</td></tr>` + (multi&&draftsOpen? draftRowsHTML() : ''); };
   app.innerHTML=`
   <div class="page">
     <div class="pagehead"><h1>Cost Projections</h1></div>
@@ -562,22 +615,22 @@ function renderLanding(){
     <div class="gridwrap" style="--gh:600px">
       <table class="grid compact" style="width:100%">
         <thead><tr>
-          <th class="sticky" style="left:0;width:120px">Job</th><th class="sticky stickyend" style="left:120px;width:301px">Description</th><th style="width:160px">Status</th><th style="width:301px">Notification</th><th class="num" style="width:200px">Projected Final ($)</th><th style="width:190px">Percentage Complete</th><th style="width:200px">Last modified</th><th style="width:200px">Last modified by</th><th class="action" style="width:120px">Actions</th></tr>
+          <th class="sticky" style="left:0;width:120px">Job</th><th class="sticky stickyend" style="left:120px;width:301px">Description</th><th style="width:160px">Status</th><th style="width:301px">Notification</th><th class="num" style="width:200px">Projected Final ($)</th><th style="width:190px">Percentage Complete</th><th style="width:200px">Last modified</th><th style="width:200px">Last modified by</th><th class="action" style="width:150px">Actions</th></tr>
           <tr class="filter"><th class="sticky" style="left:0;z-index:4">${I.search}</th><th class="sticky stickyend" style="left:120px;z-index:4">${I.search}</th><th></th><th>${I.search}</th><th class="num">${I.search}</th><th></th><th>${I.search}</th><th>${I.search}</th><th class="action"></th></tr></thead>
-        <tbody>${shown.map((j,i)=>`<tr class="${i%2?'zebra':''}"><td class="sticky" style="left:0">${j.job}</td><td class="sticky stickyend" style="left:120px">${j.desc}</td><td>${statusBadge(j.status)}</td><td>${notif(j)}</td><td class="num">${j.projected===null?'--':'$ '+fmt(j.projected)}</td><td><span class="bar"><i><b style="width:${j.pct}%"></b></i>${j.pct}%</span></td><td class="muted">${j.modified||'--'}</td><td class="muted">${j.by||'--'}</td><td class="action">${action(j)}</td></tr>`).join('')}</tbody>
+        <tbody>${shown.map((j,i)=>jobRowHTML(j,i)).join('')}</tbody>
       </table>
     </div>
   </div>`;
 }
 function setLF(status,over=false){ if(over){ landingFilter={status:null,over:!landingFilter.over}; } else landingFilter={status:(landingFilter.status===status?null:status),over:false}; renderLanding(); }
-function openDraft(job){ if(job!=='101'){ toast(`Job ${job} is static in this prototype; job 101 is the live draft`); return; } D.selectedCode=null; save(); go('#draft/101'); }
+function openDraft(job){ if(job!=='101'){ toast(`Job ${job} is static in this prototype; job 101 is the live draft`); return; } D.activeDraft=primaryDraft().id; D.selectedCode=null; save(); go('#draft/101'); }
 
 /* =========================================================
    DRAFT PAGE
    ========================================================= */
 let collapsed=false;
 function renderDraft(){
-  const con=contract(); const ua=unassigned();
+  applyView(); const ad=activeDraft(); const con=contract(); const ua=unassigned();
   const codes=D.codes.map(c=>({...c,x:codeCalc(c.code)}));
   const totals=codes.reduce((a,c)=>{ for(const k of ['estInc','actCost','projCost','prevCost','remCost','ouCost','estHours','actHours','projHours','prevHours','remHours','ouHours','forecastCost','forecastHours']) a[k]=(a[k]||0)+c.x[k]; return a; },{});
   totals.pctCost=pct(totals.actCost,totals.projCost); totals.pctHours=totals.projHours?pct(totals.actHours,totals.projHours):0;
@@ -586,6 +639,7 @@ function renderDraft(){
   app.innerHTML=`
   <div class="page">
     <div class="pagehead"><button class="back" onclick="go('#landing')" aria-label="Back">${I.back}</button><h1>Cost Projection Job 101</h1>
+      <button class="draftsw" aria-haspopup="menu" onclick="openDraftSwitcher(this)"><span>${ad.name}</span><span style="width:16px;height:16px;display:inline-flex;color:var(--text)">${I.chev}</span></button>${ad.primary?`<span class="badge primary sq" style="margin-left:0">Primary</span>`:`<button class="btn sm default" onclick="setPrimary('${ad.id}')">Set as Primary</button>`}<button class="kebabbtn" aria-label="More draft actions" onclick="openDraftKebab(this,'${ad.id}')">\u22ee</button>
       <div class="right"><button class="btn outline" onclick="toast('Reports: PM Project Status Drilldown · Review Change Orders · Projection Trend · Run Miracle WIP')">Report <span style="width:14px;height:14px;display:inline-block">${I.chev}</span></button>
       ${D.selectedCode?`<div class="toggle"><button class="${D.layout==='horizontal'?'on':''}" title="Side by side" onclick="setLayout('horizontal')">${I.side}</button><button class="${D.layout==='vertical'?'on':''}" title="Top and bottom" onclick="setLayout('vertical')">${I.stack}</button></div>`:''}</div></div>
     <div class="hdrblock">
@@ -597,7 +651,7 @@ function renderDraft(){
       <button class="btn sm chip" onclick="toast('Field properties: next build')"><span style="width:16px;height:16px;display:inline-block">${I.tune}</span>Field properties</button><span class="div"></span>
       <button class="btn sm icon ghost" title="Customize columns" onclick="toast('Customize columns panel: next build')"><span style="width:16px;height:16px;display:inline-block">${I.table}</span></button>
       <button class="btn sm icon ghost" title="Filter" onclick="toast('Filter panel: next build')"><span style="width:16px;height:16px;display:inline-block">${I.filter}</span></button><span class="div"></span>
-      <button class="view" onclick="toast('View switcher: next build')"><small>View</small> ${D.view} <span style="width:14px;height:14px;display:inline-block">${I.chev}</span></button>
+      <button class="view" aria-haspopup="menu" onclick="openViewMenu(this)"><small>View</small> ${D.view} <span style="width:14px;height:14px;display:inline-block">${I.chev}</span></button>
     </div>
     <div class="container">
       <div class="split ${D.layout}">
@@ -609,7 +663,7 @@ function renderDraft(){
       </div>
     </div>
     <div class="footer"><div class="status"></div>
-      <div class="actions"><button class="btn ghost" style="color:var(--text-muted)" onclick="toast('Changes are kept in this browser automatically')">Save as new draft</button><button class="btn primary" ${ua.length?'disabled title="Assign all phase/cost types first"':''} onclick="toast('Submit for review: next build')">Submit for review</button></div></div>
+      <div class="actions"><span class="tipwrap" ${!ad.primary?'data-tip="Set this draft as Primary to submit it for review"':(ua.length?'data-tip="Assign all phase/cost types before submitting"':'')}><button class="btn primary" ${(!ad.primary||ua.length)?'disabled':''} onclick="toast('Submit for review: next build')">Submit for review</button></span></div></div>
   </div>`;
   wireGrid(document.getElementById('codeGrid'),'code');
   const pg=document.getElementById('phaseGrid'); if(pg) wireGrid(pg,'phase');
@@ -737,16 +791,73 @@ scrim.addEventListener('click',closeDrawer);
 /* =========================================================
    ACTIONS MENU
    ========================================================= */
-function openStatusMenu(btn){ closeMenus(); const r=btn.getBoundingClientRect(); const m=document.createElement('div'); m.className='menu'; m.style.top=(r.bottom+window.scrollY+4)+'px'; m.style.left=(r.left+window.scrollX)+'px'; m.style.minWidth=r.width+'px';
+function openStatusMenu(btn){ closeMenus(); const r=btn.getBoundingClientRect(); const m=document.createElement('div'); m.className='menu'; m.dataset.ts=Date.now(); m.style.top=(r.bottom+window.scrollY+4)+'px'; m.style.left=(r.left+window.scrollX)+'px'; m.style.minWidth=r.width+'px';
   const items=[['','All Status'],['Draft','Draft'],['Submitted','Submitted'],['Approved','Approved'],['Posted','Posted'],['Yet to start','Yet to start']];
   m.innerHTML=items.map(([v,l])=>`<button class="${(landingFilter.status||'')===v?'on':''}" onclick="setLF(${v?`'${v}'`:'null'})">${l}</button>`).join('');
   document.body.appendChild(m); m.addEventListener('click',e=>e.stopPropagation()); setTimeout(()=>document.addEventListener('click',closeMenus,{once:true}),0); }
-function openActions(btn){ closeMenus(); const r=btn.getBoundingClientRect(); const m=document.createElement('div'); m.className='menu'; m.id='actionsMenu'; m.style.top=(r.bottom+window.scrollY+4)+'px'; m.style.left=(r.right+window.scrollX-260)+'px';
+function openActions(btn){ closeMenus(); const r=btn.getBoundingClientRect(); const m=document.createElement('div'); m.className='menu'; m.dataset.ts=Date.now(); m.id='actionsMenu'; m.style.top=(r.bottom+window.scrollY+4)+'px'; m.style.left=(r.right+window.scrollX-260)+'px';
   m.innerHTML=`<button onclick="resetProjection()">Reset Projection</button><button onclick="toast('Adjust Projection modal: next build')">Adjust Projection</button>`; m.style.minWidth='210px'; m.style.left=(r.right+window.scrollX-210)+'px';
   document.body.appendChild(m); setTimeout(()=>document.addEventListener('click',closeMenus,{once:true}),0); }
-function closeMenus(){ document.querySelectorAll('.menu,.popover').forEach(n=>n.remove()); }
+function closeMenus(){ const now=Date.now(); document.querySelectorAll('.menu,.popover').forEach(n=>{ if(!n.dataset.ts||now-(+n.dataset.ts)>60) n.remove(); }); }
 function resetProjection(){ modal.innerHTML=`<div class="mb"><h3 style="font-size:18px">Reset projection?</h3><p class="muted" style="margin:0">This will remove every manual forecast in this draft for job 101. All ${D.codes.length} projection codes will reset to their current estimates. The last posted projection is not affected.</p><div style="padding:10px 12px;border-radius:8px;background:var(--warning-pale);border:1px solid var(--warning);font-weight:600">This cannot be undone. ${D.changes} unsaved change${D.changes===1?'':'s'} will be lost.</div></div><div class="mf"><button class="btn outline" onclick="closeDrawer()">Cancel</button><button class="btn danger" onclick="doReset()">Reset projection</button></div>`; modal.classList.add('open'); scrim.classList.add('open'); }
 function doReset(){ const seed=seedData(); seed.layout=D.layout; seed.selectedCode=D.selectedCode; D.phases.forEach(p=>{ const s=seed.phases.find(q=>q.id===p.id); if(s){ p.projCost=s.estCost+s.inclCO; p.projHours=s.estHours; p.projUnits=s.estUnits; p.mod=false; } }); D.changes=0; save(); closeDrawer(); renderDraft(); toast('Projection reset to current estimates'); }
+
+/* =========================================================
+   MULTIPLE DRAFTS (per Figma: Multiple drafts section)
+   ========================================================= */
+function activeDraft(){ return D.drafts.find(d=>d.id===D.activeDraft)||D.drafts[0]; }
+function primaryDraft(){ return D.drafts.find(d=>d.primary)||D.drafts[0]; }
+function draftNumbers(d){ if(d.live){ const codes=D.codes.map(c=>codeCalc(c.code)); const proj=codes.reduce((a,c)=>a+c.projCost,0); return {projected:proj,pct:(D.jobs.find(j=>j.live)||{}).pct??15}; } return {projected:d.projected,pct:d.pct}; }
+function toggleDrafts(){ draftsOpen=!draftsOpen; renderLanding(); }
+function rerenderHere(){ if(location.hash.startsWith('#draft')) renderDraft(); else if(location.hash.startsWith('#detail')) render(); else renderLanding(); }
+function openDraftRow(id){ D.activeDraft=id; D.selectedCode=null; save(); if(location.hash.startsWith('#draft')) renderDraft(); else go('#draft/101'); }
+function switchDraft(id){ D.activeDraft=id; D.selectedCode=null; save(); closeMenus(); renderDraft(); }
+function setPrimary(id){ D.drafts.forEach(d=>d.primary=d.id===id); save(); closeMenus(); rerenderHere(); }
+/* Draft switcher menu \u00b7 Figma 386:94214: name + "Edited X ago", Primary badge, divider, Duplicate this draft, New blank draft */
+function openDraftSwitcher(btn){ closeMenus(); const r=btn.getBoundingClientRect(); const m=document.createElement('div'); m.className='dmenu menu'; m.dataset.ts=Date.now(); m.style.top=(r.bottom+window.scrollY+4)+'px'; m.style.left=(r.left+window.scrollX)+'px';
+  m.innerHTML=D.drafts.map(d=>`<button onclick="switchDraft('${d.id}')"><span style="flex:1 1 auto;min-width:0">${d.name}<small>Edited ${d.edited}</small></span>${d.primary?'<span class="badge primary sq" style="margin-left:0;height:20px;font-size:10px">Primary</span>':''}</button>`).join('')
+    +`<div class="div"></div>`
+    +`<button onclick="openDuplicateDialog('${D.activeDraft}')">${I.copy}<span>Duplicate this draft</span></button>`
+    +`<button onclick="openNewDraftDialog()">${I.plus}<span>New blank draft</span></button>`;
+  document.body.appendChild(m); m.addEventListener('click',e=>e.stopPropagation()); setTimeout(()=>document.addEventListener('click',closeMenus,{once:true}),0); }
+/* Kebab \u00b7 Figma 414:34058: Rename draft \u00b7 Delete draft */
+function openDraftKebab(btn,id){ closeMenus(); const r=btn.getBoundingClientRect(); const m=document.createElement('div'); m.className='menu'; m.dataset.ts=Date.now(); m.style.top=(r.bottom+window.scrollY+4)+'px'; m.style.minWidth='210px'; m.style.left=(r.right+window.scrollX-210)+'px';
+  m.innerHTML=`<button onclick="openRenameDialog('${id}')">Rename draft</button><button onclick="openDeleteDialog('${id}')">Delete draft</button>`;
+  document.body.appendChild(m); m.addEventListener('click',e=>e.stopPropagation()); setTimeout(()=>document.addEventListener('click',closeMenus,{once:true}),0); }
+/* Dialogs \u00b7 Figma Multiple drafts \u00b7 02 Dialogs */
+function draftDialog({title,desc,nameVal,placeholder,primaryChecked,confirmLabel,confirmFn}){ closeMenus();
+  modal.innerHTML=`<div class="mb"><div class="mhead"><h3>${title}</h3><button class="btn xs icon ghost" aria-label="Close" onclick="closeDrawer()"><span style="width:14px;height:14px;display:inline-block">${I.close}</span></button></div>
+    ${desc?`<p class="mdesc">${desc}</p>`:''}
+    <div><label class="mlabel" for="draftNameInp">Name</label><input class="input" id="draftNameInp" value="${nameVal??''}" ${placeholder?`placeholder="${placeholder}"`:''} maxlength="60" style="width:100%"></div></div>
+    <div class="mf"><label class="chk"><input type="checkbox" id="draftPrimaryChk" ${primaryChecked?'checked':''}> Set as Primary</label><button class="btn md default" onclick="closeDrawer()">Cancel</button><button class="btn md primary" onclick="${confirmFn}">${confirmLabel}</button></div>`;
+  modal.classList.add('open'); scrim.classList.add('open'); setTimeout(()=>{ const i=document.getElementById('draftNameInp'); i.focus(); i.select(); },0); }
+function openDuplicateDialog(id){ const d=D.drafts.find(x=>x.id===id); draftDialog({title:'Duplicate draft',desc:'Creates a copy with the same values from the current open draft.',nameVal:'Copy of '+d.name,primaryChecked:false,confirmLabel:'Duplicate and Open',confirmFn:`doDuplicate('${id}')`}); }
+function doDuplicate(id){ const d=D.drafts.find(x=>x.id===id); const i=document.getElementById('draftNameInp'); const name=(i&&i.value.trim())||('Copy of '+d.name); const prim=document.getElementById('draftPrimaryChk').checked; const n=draftNumbers(d);
+  const nd={id:'d'+Date.now(),name,primary:false,live:false,projected:n.projected,pct:n.pct,modified:nowStamp().replace(' ',' | '),edited:'just now'}; D.drafts.push(nd); if(prim) D.drafts.forEach(x=>x.primary=x.id===nd.id); D.activeDraft=nd.id; D.selectedCode=null; save(); closeDrawer(); if(location.hash.startsWith('#draft')) renderDraft(); else go('#draft/101'); }
+function openNewDraftDialog(){ draftDialog({title:'New Draft',desc:'Starts a fresh draft. Nothing is copied from your other drafts.',nameVal:'',placeholder:'e.g. Nov 2026 projection',primaryChecked:false,confirmLabel:'Create and Open',confirmFn:'doNewDraft()'}); }
+function doNewDraft(){ const i=document.getElementById('draftNameInp'); const name=i&&i.value.trim(); if(!name){ i.focus(); return; } const prim=document.getElementById('draftPrimaryChk').checked; const est=D.codes.map(c=>codeCalc(c.code)).reduce((a,c)=>a+c.estInc,0);
+  const nd={id:'d'+Date.now(),name,primary:false,live:false,projected:est,pct:0,modified:nowStamp().replace(' ',' | '),edited:'just now'}; D.drafts.push(nd); if(prim) D.drafts.forEach(x=>x.primary=x.id===nd.id); D.activeDraft=nd.id; D.selectedCode=null; save(); closeDrawer(); if(location.hash.startsWith('#draft')) renderDraft(); else go('#draft/101'); }
+function openRenameDialog(id){ const d=D.drafts.find(x=>x.id===id); draftDialog({title:'Rename draft',nameVal:d.name,primaryChecked:d.primary,confirmLabel:'Save Change',confirmFn:`doRename('${id}')`}); }
+function doRename(id){ const i=document.getElementById('draftNameInp'); const v=i&&i.value.trim(); if(v) D.drafts.find(x=>x.id===id).name=v; const prim=document.getElementById('draftPrimaryChk').checked; if(prim) D.drafts.forEach(x=>x.primary=x.id===id); save(); closeDrawer(); rerenderHere(); }
+function openDeleteDialog(id){ const d=D.drafts.find(x=>x.id===id); closeMenus(); if(d.primary){ toast('Set another draft as Primary before deleting this one'); return; }
+  modal.innerHTML=`<div class="mb"><div class="mhead"><h3>Delete Draft</h3><button class="btn xs icon ghost" aria-label="Close" onclick="closeDrawer()"><span style="width:14px;height:14px;display:inline-block">${I.close}</span></button></div><p class="mdesc">Are you sure you want to delete draft \u201c${d.name}\u201d?</p></div><div class="mf"><button class="btn md default" onclick="closeDrawer()">Cancel</button><button class="btn md danger" onclick="doDeleteDraft('${id}')">Delete</button></div>`;
+  modal.classList.add('open'); scrim.classList.add('open'); }
+function doDeleteDraft(id){ D.drafts=D.drafts.filter(x=>x.id!==id); if(D.activeDraft===id) D.activeDraft=primaryDraft().id; save(); closeDrawer(); rerenderHere(); }
+
+/* =========================================================
+   SAVED VIEWS (per Figma: Saved views dropdown 415:129315)
+   ========================================================= */
+const VIEWS={
+  'Thulsi\u2019s project view':{code:null,phase:null},
+  'Kellie\u2019s project view':{code:['code','desc','estInc','actCost','pctCost','projCost','variance','remCost','notes'],phase:['phase','pdesc','ct','cdesc','estInc','actCost','pctCost','projCost','remCost']},
+  'Angeline\u2019s project view':{code:['code','desc','um','estInc','actCost','projCost','variance','prevCost','modBy','modDate'],phase:['phase','pdesc','ct','cdesc','um','estInc','actCost','projCost','prevCost']},
+  'Adam\u2019s view':{code:['code','desc','projCost','variance'],phase:['phase','pdesc','ct','cdesc','projCost','ouCost']},
+};
+function applyView(){ if(!VIEWS[D.view]) D.view='Thulsi\u2019s project view'; const v=VIEWS[D.view]; CODE_COLS.forEach(c=>c.vis=!v.code||v.code.includes(c.k)); PHASE_COLS.forEach(c=>c.vis=!v.phase||v.phase.includes(c.k)); }
+function openViewMenu(btn){ closeMenus(); const r=btn.getBoundingClientRect(); const m=document.createElement('div'); m.className='menu'; m.dataset.ts=Date.now(); m.style.top=(r.bottom+window.scrollY+4)+'px'; m.style.minWidth='273px'; m.style.left=(r.right+window.scrollX-273)+'px';
+  m.innerHTML=Object.keys(VIEWS).map(name=>`<button onclick="setView(this.dataset.v)" data-v="${name}">${name}</button>`).join('');
+  document.body.appendChild(m); m.addEventListener('click',e=>e.stopPropagation()); setTimeout(()=>document.addEventListener('click',closeMenus,{once:true}),0); }
+function setView(name){ D.view=name; save(); closeMenus(); renderDraft(); }
 
 /* =========================================================
    CALENDAR (projection period = end of month)
